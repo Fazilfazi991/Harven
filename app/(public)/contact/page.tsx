@@ -39,7 +39,10 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <div className="font-mono text-xs tracking-widest text-text-muted uppercase mb-1">Phone / WhatsApp</div>
-                  <a href="tel:+971501234567" className="text-forest-darker font-semibold text-lg hover:text-terracotta transition-colors">+971 50 123 4567</a>
+                  <div className="flex flex-col gap-1 mt-2">
+                    <a href="tel:+971561625698" className="text-forest-darker font-semibold text-lg hover:text-terracotta transition-colors">+971 56 162 5698</a>
+                    <a href="tel:+971547226003" className="text-forest-darker font-semibold text-lg hover:text-terracotta transition-colors">+971 54 722 6003</a>
+                  </div>
                 </div>
               </div>
               <div className="flex items-start gap-4">

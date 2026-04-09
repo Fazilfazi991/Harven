@@ -40,7 +40,8 @@ export function Footer() {
           <h4 className="text-white/45 font-mono text-[0.58rem] tracking-[0.15em] uppercase mb-[1.4rem]">Contact</h4>
           <ul className="flex flex-col gap-[0.7rem] list-none p-0 m-0">
             <li><a href="mailto:harvenllc@gmail.com" className="text-white/30 text-[0.8rem] font-light no-underline transition-colors hover:text-white">harvenllc@gmail.com</a></li>
-            <li><a href="tel:+971501234567" className="text-white/30 text-[0.8rem] font-light no-underline transition-colors hover:text-white">+971 50 123 4567</a></li>
+            <li><a href="tel:+971561625698" className="text-white/30 text-[0.8rem] font-light no-underline transition-colors hover:text-white">+971 56 162 5698</a></li>
+            <li><a href="tel:+971547226003" className="text-white/30 text-[0.8rem] font-light no-underline transition-colors hover:text-white">+971 54 722 6003</a></li>
             <li className="text-white/30 text-[0.8rem] font-light mt-2">Dubai, UAE</li>
           </ul>
         </div>

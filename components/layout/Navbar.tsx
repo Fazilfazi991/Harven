@@ -140,7 +140,8 @@ export function Navbar() {
 
             <div className="mt-auto pt-8 border-t border-cream-dark">
                <div className="font-mono text-[0.65rem] tracking-[0.2em] uppercase text-text-muted mb-4">Contact HQ</div>
-               <a href="tel:+971501234567" className="block text-forest font-medium text-lg mb-2">+971 50 123 4567</a>
+               <a href="tel:+971561625698" className="block text-forest font-medium text-[1.05rem] mb-1.5">+971 56 162 5698</a>
+               <a href="tel:+971547226003" className="block text-forest font-medium text-[1.05rem] mb-3">+971 54 722 6003</a>
                <a href="mailto:harvenllc@gmail.com" className="block text-text-mid text-sm hover:text-terracotta transition-colors">harvenllc@gmail.com</a>
             </div>
           </motion.div>

@@ -1,9 +1,40 @@
 "use client";
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
 
 export default function HomepageCMS() {
   const [activeTab, setActiveTab] = useState('slider')
+  const [slides, setSlides] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchSlides()
+  }, [])
+
+  const fetchSlides = async () => {
+    setLoading(true)
+    try {
+      const supabase = createClient()
+      const { data } = await supabase.from('slides').select('*').order('sort_order')
+      if (data) setSlides(data)
+    } catch (e) {
+      console.log(e)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Remove this slide?")) return
+    try {
+       const supabase = createClient()
+       await supabase.from('slides').delete().eq('id', id)
+       fetchSlides()
+    } catch (err) {
+       console.error(err)
+    }
+  }
 
   return (
     <>
@@ -22,17 +53,28 @@ export default function HomepageCMS() {
           {activeTab === 'slider' && (
              <div className="flex flex-col gap-6">
                 <button className="self-end bg-forest text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forest-deep transition-colors">Add New Slide</button>
-                <div className="border border-cream-dark rounded-xl p-4 flex flex-col md:flex-row gap-6 items-start hover:bg-cream-warm transition-colors cursor-pointer group relative">
-                   <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&q=60" alt="" className="w-full md:w-48 h-32 object-cover rounded-lg" />
-                   <div className="flex-1 flex flex-col gap-2">
-                     <div className="flex items-center gap-3">
-                       <span className="font-mono text-[0.6rem] uppercase tracking-widest text-text-muted bg-cream px-2 py-1 rounded">Slide 1</span>
-                       <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded font-medium">Active</span>
-                     </div>
-                     <h3 className="font-display text-xl leading-tight"><strong>Sourcing</strong> the <em>World's Best.</em></h3>
-                     <p className="text-text-muted text-sm line-clamp-2">It is trust. It is consistency. It is a promise that travels across borders.</p>
+                
+                {loading ? (
+                   <p className="text-center font-light mt-10">Loading slides...</p>
+                ) : slides.length === 0 ? (
+                   <p className="text-center font-light mt-10">No live slides found.</p>
+                ) : slides.map(slide => (
+                   <div key={slide.id} className="border border-cream-dark rounded-xl p-4 flex flex-col md:flex-row gap-6 items-start hover:bg-cream-warm transition-colors group relative">
+                      <img src={slide.image_url} alt="" className="w-full md:w-48 h-32 object-cover rounded-lg bg-cream" />
+                      <div className="flex-1 flex flex-col gap-2">
+                        <div className="flex items-center gap-3">
+                          <span className="font-mono text-[0.6rem] uppercase tracking-widest text-text-muted bg-cream px-2 py-1 rounded">Slide {slide.sort_order}</span>
+                          <span className={`text-xs px-2 py-0.5 rounded font-medium ${slide.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>{slide.is_active ? 'Active' : 'Draft'}</span>
+                        </div>
+                        <h3 className="font-display text-xl leading-tight" dangerouslySetInnerHTML={{__html: slide.title}} />
+                        <p className="text-text-muted text-sm line-clamp-2">{slide.subtitle}</p>
+                      </div>
+                      <div className="flex flex-col gap-2 self-start md:self-stretch justify-center pl-4 md:border-l border-cream-dark">
+                         <button className="text-xs font-medium text-forest hover:underline p-1">Edit</button>
+                         <button onClick={() => handleDelete(slide.id)} className="text-xs font-medium text-terracotta hover:underline p-1">Delete</button>
+                      </div>
                    </div>
-                </div>
+                ))}
              </div>
           )}
 

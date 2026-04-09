@@ -6,24 +6,62 @@ import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
 import { ArrowRight } from 'lucide-react'
 
+import { createClient } from '@/lib/supabase/client'
+
 const MOCK_CATEGORIES = [
-  { id: '1', name: 'Black Pepper', img: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&q=80', description: 'Premium grade black pepper carefully harvested from the finest farms in Vietnam and India. Strict sorting guarantees high ASTA value.', category: 'Spices', tags: ['High ASTA', 'Cleaned', 'Vietnam', 'India'] },
-  { id: '2', name: 'White Rice', img: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80', description: 'Long grain, double polished white rice offering exceptional cooking quality and minimal breakage directly from Thailand and India.', category: 'Grains', tags: ['5% Broken', 'Long Grain', 'Thai Origin'] },
-  { id: '3', name: 'Almonds', img: 'https://images.unsplash.com/photo-1508061253366-f7da158b6d46?w=400&q=80', description: 'Nonpareil Californian almonds, sweet, large size, properly packed for extended shelf life during logistics routing.', category: 'Dry Fruits', tags: ['California', 'Nonpareil', 'Raw'] },
-  { id: '4', name: 'Cardamom', img: 'https://images.unsplash.com/photo-1615486511484-92e17244f77c?w=400&q=80', description: 'Jumbo green cardamom pods bursting with intense flavor and rich essential oils. Direct sourcing from high altitude farms.', category: 'Spices', tags: ['Guatemala', 'Jumbo Size', 'Green'] },
-  { id: '5', name: 'Wheat', img: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&q=80', description: 'High protein milling wheat suitable for a variety of baking and wholesale processing needs, sourced primarily from North America.', category: 'Grains', tags: ['Hard Red', 'High Protein', 'Bulk'] },
-  { id: '6', name: 'Cashews', img: 'https://images.unsplash.com/photo-1599905295058-29e3760492cb?w=400&q=80', description: 'W320 and W240 grade cashews ensuring consistent size, uniform color, and maximum crunch profile.', category: 'Dry Fruits', tags: ['W320', 'Vietnam', 'Kernel'] },
+  { id: '1', name: 'Cardamom', img: 'https://images.unsplash.com/photo-1615486511484-92e17244f77c?w=400&q=80', description: 'Premium Jumbo green cardamom pods sourced from high altitude farms.', category: 'Spices', tags: ['Guatemala', 'India', 'Jumbo Size'] },
+  { id: '2', name: 'Black Pepper', img: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&q=80', description: 'High-quality Black Pepper, heavily sorted and cleaned with high ASTA values.', category: 'Spices', tags: ['Vietnam', 'High ASTA'] },
+  { id: '3', name: 'Coffee Beans', img: 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?w=400&q=80', description: 'Premium globally sourced coffee beans ready for industrial roasting.', category: 'Spices', tags: ['Raw Beans', 'Vietnam', 'Origins'] },
+  { id: '4', name: 'Cloves', img: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&q=80', description: 'Long Cloves selected precisely to meet international consistency standards.', category: 'Spices', tags: ['Long', 'Cambodia'] },
+  { id: '5', name: 'Cinnamon', img: 'https://images.unsplash.com/photo-1532054245999-6e3e57fbd6c6?w=400&q=80', description: 'Authentic Cinnamon bark sourced from trusted South Asian partners.', category: 'Spices', tags: ['Bark', 'Premium'] },
+  
+  { id: '6', name: 'White Rice', img: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80', description: 'Multiple varieties of rice including Basmati and White broken rice.', category: 'Grains', tags: ['5% Broken', 'Long Grain'] },
+  { id: '7', name: 'Wheat', img: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&q=80', description: 'High protein milling wheat suitable for continuous industrial processing.', category: 'Grains', tags: ['Hard Red', 'High Protein'] },
+  
+  { id: '8', name: 'Coconuts', img: 'https://images.unsplash.com/photo-1526346282855-f5b244d2dccd?w=400&q=80', description: 'Raw and tender coconuts shipped globally with stringent freshness controls.', category: 'Fresh Produce', tags: ['Raw', 'Tender'] },
+  { id: '9', name: 'Mangoes & Avocados', img: 'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=400&q=80', description: 'Fresh fruit assortments including avocados, apples, and passion fruit.', category: 'Fresh Produce', tags: ['Seasonal', 'Global Origin'] },
+
+  { id: '10', name: 'Almonds', img: 'https://images.unsplash.com/photo-1508061253366-f7da158b6d46?w=400&q=80', description: 'Nonpareil Californian almonds, packed for extended shelf life logistics.', category: 'Dry Fruits', tags: ['California', 'Nonpareil'] },
+  { id: '11', name: 'Cashews', img: 'https://images.unsplash.com/photo-1599905295058-29e3760492cb?w=400&q=80', description: 'W320 and W240 grade cashews ensuring consistent size and maximum crunch.', category: 'Dry Fruits', tags: ['W320', 'Vietnam'] },
+  { id: '12', name: 'Pistachios & Pecans', img: 'https://images.unsplash.com/photo-1562206898-1e42b2ab6213?w=400&q=80', description: 'Assortment including Brazil Nuts, Pine Nuts, Hazelnuts and Macadamia.', category: 'Dry Fruits', tags: ['Bulk Deals', 'Premium Quality'] },
+
+  { id: '13', name: 'Frozen Meats', img: 'https://images.unsplash.com/photo-1603048297172-c92544798d5e?w=400&q=80', description: 'Carefully handled frozen meats and food items meeting strict controls.', category: 'Frozen', tags: ['Regulated', 'Cold Chain'] }
 ]
 
 export default function ProductsPage() {
   const [activeTab, setActiveTab] = useState('All')
   const [selectedProduct, setSelectedProduct] = useState<any>(null)
-  
-  const tabs = ['All', 'Spices', 'Grains', 'Fresh Produce', 'Dry Fruits', 'Processed', 'Frozen']
+  const [productsData, setProductsData] = useState<any[]>(MOCK_CATEGORIES)
+
+  React.useEffect(() => {
+    const fetchDB = async () => {
+      try {
+        const supabase = createClient()
+        const { data } = await supabase.from('products').select('*').eq('is_active', true).order('sort_order')
+        if (data && data.length > 0) {
+          // Map DB columns to our UI schema
+          const mapped = data.map(d => ({
+            id: d.id,
+            name: d.name,
+            img: d.image_url,
+            description: d.description,
+            category: d.category,
+            tags: d.tags || []
+          }))
+          setProductsData(mapped)
+        }
+      } catch (e) {
+        console.log("Supabase fetch failed or not connected, utilizing PDF extracted mockup.")
+      }
+    }
+    fetchDB()
+  }, [])
+
+  const tabs = ['All', 'Spices', 'Grains', 'Fresh Produce', 'Dry Fruits', 'Frozen']
 
   const filteredProducts = activeTab === 'All' 
-    ? MOCK_CATEGORIES 
-    : MOCK_CATEGORIES.filter(p => p.category === activeTab)
+    ? productsData 
+    : productsData.filter(p => p.category === activeTab)
 
   return (
     <>

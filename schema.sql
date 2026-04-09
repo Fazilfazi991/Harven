@@ -20,15 +20,17 @@ create table content_blocks (
   updated_at timestamptz default now()
 );
 
--- Product categories
-create table product_categories (
+-- Products listed in the CMS
+create table products (
   id uuid primary key default gen_random_uuid(),
   name text not null,
-  icon text,
+  category text,
+  image_url text,
   description text,
   tags text[],
   is_active boolean default true,
-  sort_order integer default 0
+  sort_order integer default 0,
+  created_at timestamptz default now()
 );
 
 -- Dynamic landing pages
