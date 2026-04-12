@@ -13,7 +13,7 @@ export default function HomePage() {
       <div className="bg-white px-6 lg:px-16 py-10 lg:py-14 flex flex-wrap items-center justify-center gap-10 lg:gap-16 border-b border-cream-dark relative z-10 w-full">
         {[
           { text: "15+ Countries", sub: "Global Sourcing", img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=100&q=60" },
-          { text: "50+ Products", sub: "Premium Commodities", img: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=100&q=60" },
+          { text: "100+ Products", sub: "Premium Commodities", img: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=100&q=60" },
           { text: "B2B Trading", sub: "Bulk & Contract Supply", img: "https://images.unsplash.com/photo-1494412574643-ff11b0a5eb19?w=100&q=60" },
           { text: "UAE Hub", sub: "Global Crossroads", img: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=100&q=60" }
         ].map((item, idx) => (
@@ -35,13 +35,8 @@ export default function HomePage() {
           <div className="rounded-[24px] overflow-hidden relative aspect-square sm:aspect-[5/4] shadow-[inset_0_0_80px_rgba(0,0,0,0.1)] order-2 lg:order-1">
             <img src="https://images.unsplash.com/photo-1500076656116-558758c991c1?w=800&q=80" alt="Farm workers" className="w-full h-full object-cover saturate-[0.85]" />
             <div className="absolute inset-0 rounded-[24px] shadow-[inset_0_0_80px_rgba(0,0,0,0.1)] pointer-events-none" />
-            <div className="absolute bottom-6 left-6 bg-white/92 backdrop-blur-[12px] rounded-[14px] p-4 lg:p-5 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
-              <div className="font-display text-[1.8rem] font-semibold text-forest leading-none">2024</div>
-              <div className="font-mono text-[0.5rem] tracking-[0.12em] uppercase text-text-muted mt-1">Established in UAE</div>
-            </div>
           </div>
-          <div className="order-1 lg:order-2">
-            <span className="section-tag">Who We Are</span>
+<div className="order-1 lg:order-2">
             <h2 className="section-title">At HARVEN, we believe food is more than <strong>a commodity.</strong></h2>
             <p className="section-sub mb-8">Born in the UAE — a global crossroads of trade — HARVEN exists to connect the world's finest producers with markets that demand quality, reliability, and scale.</p>
             <div className="font-display text-[1.1rem] lg:text-[1.3rem] font-normal italic text-forest leading-[1.6] border-l-[3px] border-terracotta pl-[1.5rem] my-[2rem]">

@@ -69,7 +69,7 @@ export default function BrandsPage() {
         certification: "HACCP, GMP Certified",
         moq: "200 Litres"
       },
-      image: "/brands/kerazone/coconut-oil.jpg",
+      image: "/brands/kerazone/oil.jpg",
       accent: "forest",
       ctaText: "Get Quote"
     }
@@ -134,7 +134,7 @@ export default function BrandsPage() {
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6 h-auto lg:h-[600px]">
               <div className="bg-cream rounded-[32px] overflow-hidden relative group shadow-sm border border-cream-dark h-[300px] lg:h-full">
-                <img src="https://images.unsplash.com/photo-1620215175664-cb6e9e30ba97?w=800&q=80" alt="Kerala Landscape" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                <img src="https://images.unsplash.com/photo-1549413247-4940f5888d37?w=1200&q=80" alt="Kerala Landscape" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-forest/60 to-transparent flex flex-col justify-end p-8">
                   <span className="text-white/80 font-mono text-[0.6rem] uppercase tracking-[0.2em] mb-2">Sustainable Farming</span>
                   <h3 className="text-white font-display text-2xl lg:text-3xl leading-tight">Preserving Natural <br />Biodiversity</h3>
@@ -151,7 +151,7 @@ export default function BrandsPage() {
                   <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-3xl transition-all duration-700 group-hover:scale-150" />
                   <h3 className="font-display text-2xl mb-4 relative z-10">Premium Supply</h3>
                   <p className="text-sm text-white/70 leading-relaxed relative z-10">Bulk allocations secured directly from farm cooperatives.</p>
-                  <Link href="/contact" className="mt-6 text-white text-sm font-medium flex items-center gap-2 relative z-10 group/link">
+                  <Link href="/HARVEN-Profil26b_compressed.pdf" className="mt-6 text-white text-sm font-medium flex items-center gap-2 relative z-10 group/link">
                     Download Brand Profile <ArrowRight size={14} className="transition-transform group-hover/link:translate-x-1" />
                   </Link>
                 </div>
