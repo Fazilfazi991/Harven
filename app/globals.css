@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+@theme {
+  --color-forest: #2D5A3D;
+  --color-forest-deep: #1C4A1E;
+  --color-forest-darker: #12200F;
+  --color-forest-light: #4A7C5C;
+  --color-sage: #8BAF7C;
+  --color-sage-light: #B5CDA8;
+  --color-olive: #6B7F3A;
+  --color-terracotta: #D64A1A;
+  --color-terracotta-light: #E8956E;
+  --color-wheat: #D4A855;
+  --color-wheat-light: #E8D5A3;
+  --color-cream: #F5F0E8;
+  --color-cream-warm: #F5EDDF;
+  --color-cream-dark: #EDE4D3;
+  --color-white: #FEFCF8;
+  
+  --color-text-dark: #2A2A22;
+  --color-text-mid: #5A5A4E;
+  --color-text-muted: #7A9079;
+
+  --font-display: 'Playfair Display', serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+}
+
+@layer base {
+  :root {
+    --forest: #2D5A3D;
+    --forest-deep: #1A3A25;
+    --forest-darker: #0F2A17;
+    --forest-light: #4A7C5C;
+    --sage: #8BAF7C;
+    --sage-light: #B5CDA8;
+    --olive: #6B7F3A;
+    --terracotta: #C4704B;
+    --terracotta-light: #E8956E;
+    --wheat: #D4A855;
+    --wheat-light: #E8D5A3;
+    --cream: #FAF6EF;
+    --cream-warm: #F5EDDF;
+    --cream-dark: #EDE4D3;
+    --white: #FEFCF8;
+    --text-dark: #2A2A22;
+    --text-mid: #5A5A4E;
+    --text-muted: #8A8A7E;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+  }
+  
+  body {
+    background-color: var(--color-cream);
+    color: var(--color-text-dark);
+    font-family: var(--font-body);
+    font-weight: 400;
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* SVG Noise Overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.015;
+    mix-blend-mode: multiply;
+  }
+}
+
+/* Animations from Harven.html */
+@layer components {
+  .section-tag {
+    @apply font-mono text-[0.58rem] tracking-[0.25em] uppercase text-terracotta font-bold mb-[1.2rem] inline-block relative pl-[2rem];
+  }
+  .section-tag::before {
+    @apply content-[''] absolute left-0 top-1/2 w-[1.2rem] h-[1.5px] bg-terracotta rounded-sm;
+  }
+
+  .section-title {
+    @apply font-display text-[clamp(2.4rem,3.8vw,3.6rem)] font-normal text-text-dark leading-[1.12] mb-[1.2rem];
+  }
+  
+  .section-title strong {
+    @apply font-semibold;
+  }
+
+  .section-sub {
+    @apply text-text-muted text-base leading-[1.85] max-w-[520px] font-light;
+  }
+}
+
+@layer utilities {
+  .clip-path-bottom {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 calc(100% - 5vw));
+  }
+}
