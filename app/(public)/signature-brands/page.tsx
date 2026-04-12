@@ -134,7 +134,7 @@ export default function BrandsPage() {
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6 h-auto lg:h-[600px]">
               <div className="bg-cream rounded-[32px] overflow-hidden relative group shadow-sm border border-cream-dark h-[300px] lg:h-full">
-                <img src="https://images.unsplash.com/photo-1549413247-4940f5888d37?w=1200&q=80" alt="Kerala Landscape" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                <img src="https://images.unsplash.com/photo-1516684669134-de6f7c473a2a?w=1200&q=80" alt="Kerala Landscape" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-forest/60 to-transparent flex flex-col justify-end p-8">
                   <span className="text-white/80 font-mono text-[0.6rem] uppercase tracking-[0.2em] mb-2">Sustainable Farming</span>
                   <h3 className="text-white font-display text-2xl lg:text-3xl leading-tight">Preserving Natural <br />Biodiversity</h3>

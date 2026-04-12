@@ -21,7 +21,7 @@ const DEFAULT_SLIDES: Slide[] = [
     id: '1',
     title: "<strong>Sourcing</strong> the<br/><em>World's Best.</em>",
     subtitle: "It is trust. It is consistency. It is a promise that travels across borders.",
-    badge_text: "UAE-Based · Global Trading · Est. 2024",
+    badge_text: "UAE-Based · Global Trading",
     cta_text: "Explore Our Range",
     cta_link: "/products",
     image_url: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920&q=80"
