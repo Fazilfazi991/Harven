@@ -2,17 +2,17 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, X, Send, Bot, Loader2 } from 'lucide-react';
+import { MessageCircle, X, Send, Bot, User, Loader2 } from 'lucide-react';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
 }
 
-export function ChatbotWidget() {
+export function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: "Hello! I'm the Harven AI Assistant. I can help you with bulk inquiries, product specifications for KeraZone & Fióri, or global sourcing details. How can I assist you today?" }
+    { role: 'assistant', content: "Hello! I'm the Harven Assistant. How can I help you with our premium food commodities and sourcing today?" }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -45,12 +45,10 @@ export function ChatbotWidget() {
       const data = await response.json();
       if (data.content) {
         setMessages(prev => [...prev, { role: 'assistant', content: data.content }]);
-      } else {
-        throw new Error("Invalid response");
       }
     } catch (error) {
       console.error("Chat error:", error);
-      setMessages(prev => [...prev, { role: 'assistant', content: "I'm currently experiencing a high volume of requests. Please try again in a moment or contact us at harvenllc@gmail.com." }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: "I'm sorry, I'm having trouble connecting right now. Please try again or contact us directly." }]);
     } finally {
       setIsLoading(false);
     }
@@ -76,13 +74,13 @@ export function ChatbotWidget() {
                   <h3 className="text-white font-display text-sm font-semibold leading-tight">Harven Assistant</h3>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <div className="w-1.5 h-1.5 rounded-full bg-sage animate-pulse" />
-                    <span className="text-white/60 text-[0.6rem] uppercase tracking-wider font-mono">Expert AI Active</span>
+                    <span className="text-white/60 text-[0.6rem] uppercase tracking-wider font-mono">Gemini Powered</span>
                   </div>
                 </div>
               </div>
               <button 
                 onClick={() => setIsOpen(false)}
-                className="text-white/40 hover:text-white transition-opacity"
+                className="text-white/40 hover:text-white transition-colors"
               >
                 <X size={20} />
               </button>
@@ -95,10 +93,10 @@ export function ChatbotWidget() {
                   key={idx} 
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div className={`max-w-[85%] rounded-[20px] p-3 text-[0.82rem] leading-relaxed shadow-sm ${
+                  <div className={`max-w-[85%] rounded-[20px] p-3 text-sm leading-relaxed ${
                     msg.role === 'user' 
                       ? 'bg-forest text-white rounded-br-none' 
-                      : 'bg-white border border-cream-dark text-text-dark rounded-bl-none'
+                      : 'bg-white border border-cream-dark text-text-dark rounded-bl-none shadow-sm'
                   }`}>
                     {msg.content}
                   </div>
@@ -114,24 +112,19 @@ export function ChatbotWidget() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Overlay for branding */}
-            <div className="bg-white px-4 py-2 border-t border-cream-dark text-[0.6rem] text-text-muted font-mono uppercase tracking-[0.1em] text-center">
-               Global Sourcing • B2B Excellence
-            </div>
-
             {/* Input */}
             <form onSubmit={handleSubmit} className="p-4 bg-white border-t border-cream-dark flex gap-2">
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about bulk contracts..."
-                className="flex-grow bg-cream/50 border border-cream-dark rounded-full px-4 py-2.5 text-[0.85rem] focus:outline-none focus:ring-2 focus:ring-forest/10 transition-all"
+                placeholder="Ask about our products..."
+                className="flex-grow bg-cream/50 border border-cream-dark rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-forest/10"
               />
               <button 
                 type="submit"
                 disabled={isLoading || !input.trim()}
-                className="w-10 h-10 rounded-full bg-terracotta text-white flex items-center justify-center transition-all hover:bg-terracotta-light hover:scale-105 disabled:opacity-50 disabled:scale-95"
+                className="w-10 h-10 rounded-full bg-terracotta text-white flex items-center justify-center transition-all hover:bg-terracotta-light disabled:opacity-50 disabled:scale-95"
               >
                 <Send size={18} />
               </button>
@@ -142,11 +135,10 @@ export function ChatbotWidget() {
 
       {/* Toggle Button */}
       <motion.button
-        transition={{ duration: 0.5, type: 'spring' }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all duration-500 ${
+        className={`w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all duration-500 ${
           isOpen ? 'bg-white text-forest border border-cream-dark' : 'bg-forest text-white'
         }`}
       >
