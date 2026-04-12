@@ -90,11 +90,11 @@ export default function BrandsPage() {
             Introducing our exclusive portfolio of premium food brands. Sourced from the lush landscapes of India and processed with uncompromising quality.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-10 duration-1000">
-            <Link href="#kerazone" className="bg-forest text-white px-8 py-4 rounded-full font-medium text-[0.9rem] flex items-center gap-2 transition-all hover:bg-forest-deep hover:-translate-y-1 shadow-lg shadow-forest/10">
-              View KeraZone <ArrowRight size={18} />
+            <Link href="/contact" className="bg-forest text-white px-8 py-4 rounded-full font-medium text-[0.9rem] flex items-center gap-2 transition-all hover:bg-forest-deep hover:-translate-y-1 shadow-lg shadow-forest/10">
+              Contact Us <ArrowRight size={18} />
             </Link>
-            <Link href="#fiori" className="bg-white border border-cream-dark text-text-dark px-8 py-4 rounded-full font-medium text-[0.9rem] transition-all hover:bg-cream-warm hover:-translate-y-1">
-              Explore Fióri
+            <Link href="/contact" className="bg-white border border-cream-dark text-text-dark px-8 py-4 rounded-full font-medium text-[0.9rem] transition-all hover:bg-cream-warm hover:-translate-y-1 focus:ring-2 focus:ring-forest/20">
+              Contact Us
             </Link>
           </div>
         </div>

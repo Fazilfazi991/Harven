@@ -36,7 +36,7 @@ export function Navbar() {
     { name: 'About', href: '/about' },
     { name: 'Products', href: '/products' },
     { name: 'Brands', href: '/signature-brands' },
-    { name: 'Contact', href: '/contact', isCta: true }
+    { name: 'Contact Us', href: '/contact', isCta: true }
   ]
 
   return (
