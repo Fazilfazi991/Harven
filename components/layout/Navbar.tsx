@@ -52,7 +52,7 @@ export function Navbar() {
           <img 
             src={isHome && !scrolled && !mobileMenuOpen ? "/images/logo-white.svg" : "/images/logo.svg"} 
             alt="HARVEN" 
-            className="h-10 lg:h-12 w-auto object-contain transition-all duration-300" 
+            className="h-10 lg:h-[3.8rem] w-auto object-contain transition-all duration-300" 
           />
         </Link>
 
