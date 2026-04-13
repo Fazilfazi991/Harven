@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash-lite-preview-02-05", // Fulfilling request for 'Flash-Lite'
       systemInstruction: SYSTEM_PROMPT
     });
 
@@ -40,6 +40,10 @@ export async function POST(req: Request) {
         parts: [{ text: msg.content }],
       }));
 
+    if (!process.env.GOOGLE_GEMINI_API_KEY) {
+      console.error("CRITICAL: GOOGLE_GEMINI_API_KEY is not defined in environment variables.");
+    }
+
     const chat = model.startChat({
       history: history,
     });
@@ -50,10 +54,20 @@ export async function POST(req: Request) {
     const text = response.text();
 
     return NextResponse.json({ content: text });
-  } catch (error) {
-    console.error("Chat API error:", error);
+  } catch (error: any) {
+    console.error("Chat API error details:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      status: error.status || error.statusCode
+    });
+    
+    // Provide a more helpful error response for debugging
     return NextResponse.json(
-      { error: "Failed to process chat request" },
+      { 
+        error: "Failed to process chat request", 
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      },
       { status: 500 }
     );
   }

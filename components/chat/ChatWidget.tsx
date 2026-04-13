@@ -43,12 +43,19 @@ export function ChatWidget() {
       });
 
       const data = await response.json();
-      if (data.content) {
+      if (response.ok && data.content) {
         setMessages(prev => [...prev, { role: 'assistant', content: data.content }]);
+      } else {
+        const errorMsg = data.details || data.error || "Invalid response from server";
+        throw new Error(errorMsg);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Chat error:", error);
-      setMessages(prev => [...prev, { role: 'assistant', content: "I'm sorry, I'm having trouble connecting right now. Please try again or contact us directly." }]);
+      const friendlyError = error.message.includes("API_KEY") 
+        ? "The AI assistant is not correctly configured (Missing API Key). Please check site settings."
+        : "I'm currently experiencing a high volume of requests. Please try again in a moment or contact us at harvenllc@gmail.com.";
+      
+      setMessages(prev => [...prev, { role: 'assistant', content: friendlyError }]);
     } finally {
       setIsLoading(false);
     }
