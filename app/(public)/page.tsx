@@ -14,7 +14,7 @@ export default function HomePage() {
         {[
           { text: "15+ Countries", sub: "Global Sourcing", img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=100&q=60" },
           { text: "100+ Products", sub: "Premium Commodities", img: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=100&q=60" },
-          { text: "B2B Trading", sub: "Bulk & Contract Supply", img: "https://images.unsplash.com/photo-1494412574643-ff11b0a5eb19?w=100&q=60" },
+          { text: "B2B Trading", sub: "Bulk & Contract Supply", img: "/images/b2b-trading.png" },
           { text: "UAE Hub", sub: "Global Crossroads", img: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=100&q=60" }
         ].map((item, idx) => (
           <div key={idx} className="flex items-center gap-3 w-[45%] md:w-auto">
@@ -33,7 +33,7 @@ export default function HomePage() {
       <section id="about" className="bg-white py-16 lg:py-28 px-6 lg:px-16 relative w-full overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-12 lg:gap-20 items-center max-w-7xl mx-auto">
           <div className="rounded-[24px] overflow-hidden relative aspect-square sm:aspect-[5/4] shadow-[inset_0_0_80px_rgba(0,0,0,0.1)] order-2 lg:order-1">
-            <img src="https://images.unsplash.com/photo-1500076656116-558758c991c1?w=800&q=80" alt="Farm workers" className="w-full h-full object-cover saturate-[0.85]" />
+            <img src="/images/about-harvesting.png" alt="Farm workers" className="w-full h-full object-cover saturate-[0.85]" />
             <div className="absolute inset-0 rounded-[24px] shadow-[inset_0_0_80px_rgba(0,0,0,0.1)] pointer-events-none" />
           </div>
 <div className="order-1 lg:order-2">
@@ -132,11 +132,11 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto z-10 relative">
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-5">
             {[
-              { img: "https://images.unsplash.com/photo-1592686082490-b98a318cefc1?w=200&q=60", title: "Global Reach", desc: "Bridging the gap between continents." },
-              { img: "https://images.unsplash.com/photo-1586724236151-5bdec10c4d7b?w=200&q=60", title: "Certified Supply", desc: "ISO and HACCP certified partners." },
-              { img: "https://images.unsplash.com/photo-1605000797499-95a51c5269ae?w=200&q=60", title: "Freshness", desc: "Harvest-to-port speed optimization." },
-              { img: "https://images.unsplash.com/photo-1563200008-8e6d97dbbb72?w=200&q=60", title: "Traceability", desc: "Tracking from farm to warehouse." },
-              { img: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=200&q=60", title: "Bulk Contracts", desc: "Securing volume discounts." }
+              { img: "/images/global-reach.png", title: "Global Reach", desc: "Bridging the gap between continents." },
+              { img: "/images/certified-supply.png", title: "Certified Supply", desc: "ISO and HACCP certified partners." },
+              { img: "/images/freshness.png", title: "Freshness", desc: "Harvest-to-port speed optimization." },
+              { img: "/images/traceability.png", title: "Traceability", desc: "Tracking from farm to warehouse." },
+              { img: "/images/bulk-contracts.png", title: "Bulk Contracts", desc: "Securing volume discounts." }
             ].map((cmt, i) => (
               <div key={cmt.title} className={`bg-white border border-black/5 rounded-[18px] p-6 lg:p-8 text-center transition-all duration-400 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(45,90,61,0.06)] hover:border-sage-light group ${i === 4 ? 'col-span-2 lg:col-span-1 border-t-2 lg:border-t-[1px]' : ''}`}>
                  <div className="w-[60px] h-[60px] lg:w-[70px] lg:h-[70px] rounded-full overflow-hidden mx-auto mb-4 lg:mb-5 border-2 border-cream-dark transition-all duration-300 group-hover:border-sage group-hover:scale-105">
@@ -208,10 +208,10 @@ export default function HomePage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 relative">
             {[
-               { img: "https://images.unsplash.com/photo-1592686082490-b98a318cefc1?w=300&q=80", title: "Source", step: "01", desc: "We identify premium origins and negotiate farm-direct allocations." },
-               { img: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=300&q=80", title: "Quality", step: "02", desc: "Stringent pre-shipment laboratory inspections and sorting." },
-               { img: "https://images.unsplash.com/photo-1494412574643-ff11b0a5eb19?w=300&q=80", title: "Trade", step: "03", desc: "Transparent, secure contracting via our Dubai headquarters." },
-               { img: "https://images.unsplash.com/photo-1586528116311-ad8ed7c80a30?w=300&q=80", title: "Deliver", step: "04", desc: "End-to-end logistics handling ensuring port-to-port accuracy." }
+               { img: "/images/process-source.png", title: "Source", step: "01", desc: "We identify premium origins and negotiate farm-direct allocations." },
+               { img: "/images/process-quality.png", title: "Quality", step: "02", desc: "Stringent pre-shipment laboratory inspections and sorting." },
+               { img: "/images/process-trade.png", title: "Trade", step: "03", desc: "Transparent, secure contracting via our Dubai headquarters." },
+               { img: "/images/process-deliver.png", title: "Deliver", step: "04", desc: "End-to-end logistics handling ensuring port-to-port accuracy." }
             ].map(item => (
               <div key={item.step} className="text-center p-3 lg:p-4 group">
                 <div className="w-[90px] h-[90px] lg:w-[110px] lg:h-[110px] rounded-full overflow-hidden mx-auto mb-4 lg:mb-6 border-[3px] border-cream-dark transition-all duration-400 group-hover:border-sage group-hover:scale-[1.06] group-hover:shadow-[0_8px_30px_rgba(45,90,61,0.1)]">

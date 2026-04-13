@@ -30,10 +30,15 @@ export async function POST(req: Request) {
 
     // Format history for Gemini
     // Gemini expects an array of { role: 'user' | 'model', parts: [{ text: '...' }] }
-    const history = messages.slice(0, -1).map((msg: any) => ({
-      role: msg.role === "assistant" ? "model" : "user",
-      parts: [{ text: msg.content }],
-    }));
+    // IMPORTANT: History must start with a 'user' message. 
+    // We skip the first message if it's from the assistant (the static greeting).
+    const history = messages
+      .slice(0, -1)
+      .filter((msg: any, idx: number) => !(idx === 0 && msg.role === 'assistant'))
+      .map((msg: any) => ({
+        role: msg.role === "assistant" ? "model" : "user",
+        parts: [{ text: msg.content }],
+      }));
 
     const chat = model.startChat({
       history: history,

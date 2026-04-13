@@ -9,8 +9,8 @@ export function Footer() {
       
       <div className="grid grid-cols-1 lg:grid-cols-[2.5fr_1fr_1fr_1fr] gap-12 mb-16 relative z-10">
         <div className="flex flex-col gap-5">
-          <Link href="/" className="font-display text-[1.6rem] font-semibold text-white no-underline">
-            HARV<span className="text-wheat italic">E</span>N
+          <Link href="/" className="no-underline">
+            <img src="/images/logo-white.svg" alt="HARVEN" className="h-10 w-auto object-contain" />
           </Link>
           <p className="text-white/30 text-[0.82rem] leading-[1.8] max-w-[280px] font-light">
             From farms to ports, harvest to wholesale — HARVEN connects the world's finest food producers with markets that demand quality, reliability, and scale.

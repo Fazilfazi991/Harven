@@ -49,18 +49,11 @@ export function Navbar() {
         scrolled && !isHome ? "py-3 lg:py-[0.8rem] bg-cream/95 backdrop-blur-[24px] border-b border-black/5 shadow-[0_2px_30px_rgba(0,0,0,0.04)]" : ""
       )}>
         <Link href="/" className="group flex flex-col no-underline z-50">
-          <div className={twMerge(
-            "font-display text-2xl lg:text-[1.9rem] font-semibold tracking-[0.02em]",
-            isHome && !scrolled && !mobileMenuOpen ? "text-white" : "text-forest-deep"
-          )}>
-            HARV<span className="text-terracotta italic">E</span>N
-          </div>
-          <small className={twMerge(
-            "font-mono text-[0.4rem] lg:text-[0.48rem] font-normal tracking-[0.22em] uppercase",
-            isHome && !scrolled && !mobileMenuOpen ? "text-white/50" : "text-text-muted"
-          )}>
-            SOURCING THE WORLD'S BEST
-          </small>
+          <img 
+            src={isHome && !scrolled && !mobileMenuOpen ? "/images/logo-white.svg" : "/images/logo.svg"} 
+            alt="HARVEN" 
+            className="h-10 lg:h-12 w-auto object-contain transition-all duration-300" 
+          />
         </Link>
 
         {/* Desktop Nav */}
