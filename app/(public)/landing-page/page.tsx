@@ -38,18 +38,18 @@ export default function PepperLandingPage() {
             Stock Live & Available
           </div>
           <h1 className="font-display text-5xl md:text-7xl font-light text-white leading-[1.1] tracking-tight mb-8">
-            Premium <span className="italic font-normal text-sage">Vietnam</span> <br />
+            Premium <span className="italic font-normal text-sage">Indian</span> <br />
             Black Pepper
           </h1>
           <p className="text-white/60 text-lg md:text-xl font-light leading-relaxed mb-10 max-w-xl">
-            High-piperine, machine-cleaned, and steam-sterilized. Sourced directly from Binh Phuoc, Vietnam for global distribution.
+            High-piperine, machine-cleaned, and steam-sterilized. Sourced directly from the lush Malabar Coast, India, for global distribution.
           </p>
           <div className="flex flex-wrap gap-5">
             <Button variant="primary" onClick={() => document.getElementById('inquiry-form')?.scrollIntoView({ behavior: 'smooth' })}>
               Request Quotation <ArrowRight size={18} className="ml-2" />
             </Button>
             <div className="flex items-center gap-4 text-white/40 font-mono text-[0.6rem] uppercase tracking-widest border-l border-white/10 pl-6">
-              <span>500 G/L FAQ</span>
+              <span>Tellicherry Grade</span>
               <span className="w-1 h-1 rounded-full bg-white/20" />
               <span>Moisture 12.5%</span>
             </div>
@@ -114,11 +114,11 @@ export default function PepperLandingPage() {
             
             <div className="grid grid-cols-1 gap-4 mb-12">
               {[
-                { label: 'Density', value: '500 - 550 G/L' },
+                { label: 'Density', value: '550 - 600 G/L' },
                 { label: 'Moisture', value: '12.5% Max' },
                 { label: 'Admixture', value: '0.2% Max' },
-                { label: 'Piperine', value: '4.0% - 6.0%' },
-                { label: 'Steam Sterilization', value: 'Available on Request' },
+                { label: 'Piperine', value: '4.5% - 6.5%' },
+                { label: 'Origin', value: 'Malabar Coast, India' },
                 { label: 'Packing', value: '25kg / 50kg PP Bags or Jute Bags' }
               ].map((spec, i) => (
                 <div key={i} className="flex items-center justify-between p-5 rounded-2xl border border-cream hover:bg-cream/20 transition-colors">
@@ -133,10 +133,10 @@ export default function PepperLandingPage() {
               <div className="relative z-10">
                 <h4 className="font-display text-2xl font-semibold mb-4 flex items-center gap-3">
                   <Zap className="text-sage" size={24} /> 
-                  Fast-Track Shipping
+                  Premium Export Logistics
                 </h4>
                 <p className="text-white/70 text-sm font-light leading-relaxed max-w-md">
-                  Operating from our Dubai hub, we ensure lead times are minimized for Middle Eastern and African markets. European shipments are handled via direct container booking from Ho Chi Minh Port.
+                  Operating from our Dubai hub, we provide end-to-end logistics from Cochin Port to your warehouse. We specialize in bulk tea and spice shipments with full phytosanitary certification.
                 </p>
               </div>
             </div>
