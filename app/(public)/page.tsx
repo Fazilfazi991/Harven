@@ -102,7 +102,8 @@ export default function HomePage() {
                 desc: "Rare, medicinal honey sourced from the untouched forests of Kerala.", 
                 img: "/brands/kerazone/honey.jpg",
                 tag: "Nature's Gold",
-                accent: "amber"
+                accent: "amber",
+                fit: "contain"
               },
               { 
                 brand: "KeraZone", 
@@ -110,7 +111,8 @@ export default function HomePage() {
                 desc: "Premium Alleppey Green Cardamom, hand-picked for bold aroma and flavor.", 
                 img: "/brands/kerazone/cardamom.jpg",
                 tag: "Export Grade",
-                accent: "emerald"
+                accent: "emerald",
+                fit: "cover"
               },
               { 
                 brand: "Fióri", 
@@ -118,12 +120,19 @@ export default function HomePage() {
                 desc: "100% pure Alphonso Mango pulp. Sterile, aseptic packaging for industrial use.", 
                 img: "/brands/fiori/mangozy.jpg",
                 tag: "Pure Fruit",
-                accent: "terracotta"
+                accent: "terracotta",
+                fit: "contain"
               }
             ].map((prod, idx) => (
               <div key={idx} className="group bg-white rounded-[32px] overflow-hidden border border-cream-dark transition-all duration-500 hover:shadow-[0_24px_80px_rgba(45,90,61,0.08)] hover:-translate-y-2 flex flex-col">
-                <div className="aspect-[4/3] overflow-hidden relative">
-                  <img src={prod.img} alt={prod.title} className="w-full h-full object-cover saturate-[0.8] group-hover:saturate-100 transition-all duration-700 group-hover:scale-105" />
+                <div className={`aspect-[4/3] overflow-hidden relative ${prod.fit === 'contain' ? 'bg-[#F2EADA]' : ''}`}>
+                  <img 
+                    src={prod.img} 
+                    alt={prod.title} 
+                    className={`w-full h-full saturate-[0.8] group-hover:saturate-100 transition-all duration-700 group-hover:scale-105 ${
+                      prod.fit === 'contain' ? 'object-contain p-4' : 'object-cover'
+                    }`} 
+                  />
                   <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[0.6rem] font-bold uppercase tracking-widest text-text-dark shadow-sm">
                     {prod.brand}
                   </div>
