@@ -85,6 +85,75 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* SIGNATURE BRANDS SECTION */}
+      <section className="bg-cream-warm py-16 lg:py-28 px-6 lg:px-16 w-full overflow-hidden border-t border-cream-dark">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12 lg:mb-16">
+            <span className="section-tag bg-forest/10 text-forest border-forest/20">Our Signature Brands</span>
+            <h2 className="section-title">Heritage <strong>& Purity</strong></h2>
+            <p className="section-sub mx-auto">Discover exclusive products from our in-house brands, KeraZone and Fióri.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { 
+                brand: "KeraZone", 
+                title: "Black Stingless Bee Honey", 
+                desc: "Rare, medicinal honey sourced from the untouched forests of Kerala.", 
+                img: "/brands/kerazone/honey.jpg",
+                tag: "Nature's Gold",
+                accent: "amber"
+              },
+              { 
+                brand: "KeraZone", 
+                title: "Kerala Green Cardamom", 
+                desc: "Premium Alleppey Green Cardamom, hand-picked for bold aroma and flavor.", 
+                img: "/brands/kerazone/cardamom.jpg",
+                tag: "Export Grade",
+                accent: "emerald"
+              },
+              { 
+                brand: "Fióri", 
+                title: "Mangozy Alphonso Pulp", 
+                desc: "100% pure Alphonso Mango pulp. Sterile, aseptic packaging for industrial use.", 
+                img: "/brands/fiori/mangozy.jpg",
+                tag: "Pure Fruit",
+                accent: "terracotta"
+              }
+            ].map((prod, idx) => (
+              <div key={idx} className="group bg-white rounded-[32px] overflow-hidden border border-cream-dark transition-all duration-500 hover:shadow-[0_24px_80px_rgba(45,90,61,0.08)] hover:-translate-y-2 flex flex-col">
+                <div className="aspect-[4/3] overflow-hidden relative">
+                  <img src={prod.img} alt={prod.title} className="w-full h-full object-cover saturate-[0.8] group-hover:saturate-100 transition-all duration-700 group-hover:scale-105" />
+                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[0.6rem] font-bold uppercase tracking-widest text-text-dark shadow-sm">
+                    {prod.brand}
+                  </div>
+                </div>
+                <div className="p-8 flex-grow flex flex-col">
+                   <div className={`text-[0.65rem] font-bold uppercase tracking-[0.15em] mb-2 ${
+                     prod.accent === 'amber' ? 'text-amber-600' : 
+                     prod.accent === 'emerald' ? 'text-emerald-600' : 
+                     'text-terracotta'
+                   }`}>
+                     {prod.tag}
+                   </div>
+                   <h3 className="font-display text-2xl font-semibold text-text-dark mb-3 leading-tight">{prod.title}</h3>
+                   <p className="text-text-muted text-[0.85rem] leading-relaxed mb-6 flex-grow">{prod.desc}</p>
+                   <Link href="/signature-brands" className="inline-flex items-center gap-2 text-forest text-sm font-semibold group/link">
+                     Product Details <ArrowRight size={16} className="transition-transform group-hover/link:translate-x-1" />
+                   </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-12 lg:mt-16">
+            <Link href="/signature-brands" className="inline-flex items-center gap-3 bg-forest text-white px-10 py-4 rounded-full font-semibold text-[0.9rem] transition-all hover:bg-forest-deep hover:-translate-y-1 shadow-xl shadow-forest/10 group">
+              View All Signature Brands <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* PRODUCTS PREVIEW */}
       <section className="bg-white py-16 lg:py-28 px-6 lg:px-16 w-full overflow-hidden">
         <div className="max-w-7xl mx-auto">
