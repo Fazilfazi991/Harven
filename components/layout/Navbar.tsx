@@ -33,7 +33,7 @@ export function Navbar() {
 
   const links = [
     { name: 'Home', href: '/' },
-    { name: 'About', href: '/about' },
+    { name: 'Our Promise', href: '/about' },
     { name: 'Products', href: '/products' },
     { name: 'Brands', href: '/signature-brands' },
     { name: 'Contact Us', href: '/contact', isCta: true }

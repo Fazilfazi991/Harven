@@ -29,8 +29,8 @@ export default function HomePage() {
         ))}
       </div>
 
-      {/* ABOUT PREVIEW */}
-      <section id="about" className="bg-white py-16 lg:py-28 px-6 lg:px-16 relative w-full overflow-hidden">
+      {/* OUR PROMISE PREVIEW */}
+      <section id="promise" className="bg-white py-16 lg:py-28 px-6 lg:px-16 relative w-full overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-12 lg:gap-20 items-center max-w-7xl mx-auto">
           <div className="rounded-[24px] overflow-hidden relative aspect-square sm:aspect-[5/4] shadow-[inset_0_0_80px_rgba(0,0,0,0.1)] order-2 lg:order-1">
             <img src="/images/about-harvesting.png" alt="Farm workers" className="w-full h-full object-cover saturate-[0.85]" />

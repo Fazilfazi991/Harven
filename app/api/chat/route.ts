@@ -23,8 +23,14 @@ Keep responses concise and professional. If you don't know something, suggest co
 export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
+    
+    if (!process.env.GOOGLE_GEMINI_API_KEY) {
+      console.error("Chat Error: GOOGLE_GEMINI_API_KEY is missing");
+      return NextResponse.json({ error: "API Key Missing" }, { status: 500 });
+    }
+
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.0-flash-lite-preview-02-05", // Fulfilling request for 'Flash-Lite'
+      model: "gemini-1.5-flash", // Using stable Flash model for better reliability
       systemInstruction: SYSTEM_PROMPT
     });
 

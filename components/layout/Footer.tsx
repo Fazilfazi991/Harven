@@ -30,7 +30,7 @@ export function Footer() {
         <div className="flex flex-col">
           <h4 className="text-white/45 font-mono text-[0.58rem] tracking-[0.15em] uppercase mb-[1.4rem]">Company</h4>
           <ul className="flex flex-col gap-[0.7rem] list-none p-0 m-0">
-            <li><Link href="/about" className="text-white/30 text-[0.82rem] font-light no-underline transition-all hover:text-white hover:translate-x-1 inline-block">Our Story</Link></li>
+            <li><Link href="/about" className="text-white/30 text-[0.82rem] font-light no-underline transition-all hover:text-white hover:translate-x-1 inline-block">Our Promise</Link></li>
             <li><Link href="/about#process" className="text-white/30 text-[0.82rem] font-light no-underline transition-all hover:text-white hover:translate-x-1 inline-block">Trading Process</Link></li>
             <li><Link href="/contact" className="text-white/30 text-[0.82rem] font-light no-underline transition-all hover:text-white hover:translate-x-1 inline-block">Careers</Link></li>
           </ul>

@@ -46,14 +46,16 @@ export function ChatbotWidget() {
       if (response.ok && data.content) {
         setMessages(prev => [...prev, { role: 'assistant', content: data.content }]);
       } else {
-        const errorMsg = data.details || data.error || "Invalid response from server";
+        const errorMsg = data.error || "Invalid response from server";
         throw new Error(errorMsg);
       }
     } catch (error: any) {
       console.error("Chat error:", error);
-      const friendlyError = error.message.includes("API_KEY") 
-        ? "The AI assistant is not correctly configured (Missing API Key). Please check site settings."
-        : "I'm currently experiencing a high volume of requests. Please try again in a moment or contact us at harvenllc@gmail.com.";
+      let friendlyError = "I'm currently experiencing a high volume of requests. Please try again in a moment or contact us at harvenllc@gmail.com.";
+      
+      if (error.message.includes("API Key Missing")) {
+        friendlyError = "The AI Assistant is currently in maintenance mode (Configuration Required). Please contact support.";
+      }
       
       setMessages(prev => [...prev, { role: 'assistant', content: friendlyError }]);
     } finally {

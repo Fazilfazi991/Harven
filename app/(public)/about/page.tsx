@@ -8,9 +8,9 @@ export default function AboutPage() {
       <section className="bg-forest-deep pt-40 pb-28 px-8 lg:px-16 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_30%,rgba(139,175,124,0.08)_0%,transparent_50%))] pointer-events-none" />
         <span className="font-mono text-[0.6rem] tracking-[0.25em] uppercase text-sage font-bold mb-[1.2rem] inline-block relative pl-[2rem] before:content-[''] before:absolute before:left-0 before:top-1/2 before:w-[1.2rem] before:h-[1.5px] before:bg-sage before:rounded-sm">
-          Brand Story
+          Our Promise
         </span>
-        <h1 className="font-display text-5xl md:text-6xl text-white font-light tracking-tight mt-4 relative z-10">Born in the UAE.<br /><strong className="font-semibold italic text-wheat-light">Trading Globally.</strong></h1>
+        <h1 className="font-display text-5xl md:text-6xl text-white font-light tracking-tight mt-4 relative z-10">Quality Sustained,<br /><strong className="font-semibold italic text-wheat-light">Trust Delivered.</strong></h1>
       </section>
 
       <section className="bg-white py-28 px-8 lg:px-16 overflow-hidden">
