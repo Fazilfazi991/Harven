@@ -61,30 +61,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* EXPERTISE SECTION */}
-      <section className="bg-forest-deep relative overflow-hidden py-16 lg:py-28 px-6 lg:px-16 w-full">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_15%_40%,rgba(139,175,124,0.08)_0%,transparent_50%),radial-gradient(ellipse_at_85%_70%,rgba(196,112,75,0.06)_0%,transparent_40%)] pointer-events-none" />
-        <div className="text-center mb-12 lg:mb-16 relative z-10 max-w-3xl mx-auto">
-          <span className="section-tag !text-sage before:!bg-sage">The Harven Advantage</span>
-          <h2 className="section-title !text-white">Why Trade With Us</h2>
-          <p className="section-sub !text-white/45 mx-auto">Our global network ensures that your supply chain never breaks. We offer unmatched scale with local expertise.</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10 max-w-6xl mx-auto">
-          {[
-            { num: "01", title: "Direct Farm Partnerships", desc: "We bypass unnecessary intermediaries to bring you closer to the source." },
-            { num: "02", title: "Rigorous Quality Control", desc: "Every shipment is heavily inspected by third-party certifiers before dispatch." },
-            { num: "03", title: "Global Logistics Hub", desc: "Operating from Dubai gives us unparalleled leverage in global shipping routes." },
-          ].map(item => (
-            <div key={item.num} className="bg-white/5 border border-white/5 rounded-[20px] p-8 lg:p-10 text-center transition-all duration-500 hover:bg-white/10 hover:border-white/10 hover:-translate-y-[6px] relative overflow-hidden group">
-               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(139,175,124,0.06)_0%,transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity" />
-               <div className="font-display text-[2.5rem] font-light text-terracotta leading-none mb-4 opacity-60 relative z-10">{item.num}</div>
-               <h3 className="font-display text-[1.3rem] font-medium text-white mb-3 relative z-10">{item.title}</h3>
-               <p className="text-[0.82rem] text-white/45 leading-[1.7] font-light relative z-10">{item.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* SIGNATURE BRANDS SECTION */}
       <section className="bg-cream-warm py-16 lg:py-28 px-6 lg:px-16 w-full overflow-hidden border-t border-cream-dark">
         <div className="max-w-7xl mx-auto">
@@ -160,6 +136,30 @@ export default function HomePage() {
               View All Signature Brands <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* EXPERTISE SECTION */}
+      <section className="bg-forest-deep relative overflow-hidden py-16 lg:py-28 px-6 lg:px-16 w-full">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_15%_40%,rgba(139,175,124,0.08)_0%,transparent_50%),radial-gradient(ellipse_at_85%_70%,rgba(196,112,75,0.06)_0%,transparent_40%)] pointer-events-none" />
+        <div className="text-center mb-12 lg:mb-16 relative z-10 max-w-3xl mx-auto">
+          <span className="section-tag !text-sage before:!bg-sage">The Harven Advantage</span>
+          <h2 className="section-title !text-white">Why Trade With Us</h2>
+          <p className="section-sub !text-white/45 mx-auto">Our global network ensures that your supply chain never breaks. We offer unmatched scale with local expertise.</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10 max-w-6xl mx-auto">
+          {[
+            { num: "01", title: "Direct Farm Partnerships", desc: "We bypass unnecessary intermediaries to bring you closer to the source." },
+            { num: "02", title: "Rigorous Quality Control", desc: "Every shipment is heavily inspected by third-party certifiers before dispatch." },
+            { num: "03", title: "Global Logistics Hub", desc: "Operating from Dubai gives us unparalleled leverage in global shipping routes." },
+          ].map(item => (
+            <div key={item.num} className="bg-white/5 border border-white/5 rounded-[20px] p-8 lg:p-10 text-center transition-all duration-500 hover:bg-white/10 hover:border-white/10 hover:-translate-y-[6px] relative overflow-hidden group">
+               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(139,175,124,0.06)_0%,transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity" />
+               <div className="font-display text-[2.5rem] font-light text-terracotta leading-none mb-4 opacity-60 relative z-10">{item.num}</div>
+               <h3 className="font-display text-[1.3rem] font-medium text-white mb-3 relative z-10">{item.title}</h3>
+               <p className="text-[0.82rem] text-white/45 leading-[1.7] font-light relative z-10">{item.desc}</p>
+            </div>
+          ))}
         </div>
       </section>
 
