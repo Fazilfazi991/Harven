@@ -12,8 +12,9 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
         {children}
       </main>
       <Footer />
-      <ChatbotWidget />
-      <WhatsAppButton />
+      {/* DIAGNOSTIC: Disabling widgets to isolate crash */}
+      {/* <ChatbotWidget /> */}
+      {/* <WhatsAppButton /> */}
     </div>
   )
 }
