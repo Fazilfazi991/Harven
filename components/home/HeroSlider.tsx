@@ -95,30 +95,16 @@ export function HeroSlider() {
           transition={{ duration: 1.6, ease: [0.4, 0, 0.2, 1] }}
           className="absolute inset-0 z-0"
         >
-          {currentSlide.media_type === 'video' && currentSlide.video_url ? (
-            <div className="relative w-full h-full">
-              <video
-                src={currentSlide.video_url}
-                autoPlay
-                muted
-                loop
-                playsInline
-                poster={currentSlide.image_url}
-                className="w-full h-full object-cover brightness-[0.4] saturate-[0.85]"
-              />
-            </div>
-          ) : (
-            <motion.img 
-              src={currentSlide.image_url} 
-              alt="Hero background"
-              fetchPriority="high"
-              loading="eager"
-              className="w-full h-full object-cover brightness-[0.5] saturate-[0.85]"
-              initial={{ scale: 1.06 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 10, ease: "easeOut" }}
-            />
-          )}
+          <motion.img 
+            src={currentSlide.image_url} 
+            alt="Hero background"
+            fetchPriority="high"
+            loading="eager"
+            className="w-full h-full object-cover brightness-[0.5] saturate-[0.85]"
+            initial={{ scale: 1.06 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 10, ease: "easeOut" }}
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-[#0F2A17]/60 via-[#0F2A17]/15 to-[#0F2A17]/55" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0F2A17]/50 to-transparent w-1/2" />
         </motion.div>
