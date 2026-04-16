@@ -3,8 +3,26 @@ import { HeroSlider } from '@/components/home/HeroSlider'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { Badge } from '@/components/ui/Badge'
+import { createClient } from '@/lib/supabase/server'
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = await createClient()
+  
+  // Fetch only active products for the stock board
+  const { data: stockItems } = await supabase
+    .from('products')
+    .select('*')
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true })
+    .limit(3)
+
+  // Use fallback data if DB is empty
+  const displayStock = (stockItems && stockItems.length > 0) ? stockItems : [
+    { name: 'Black Pepper', category: 'Spices', description: 'Origin: Vietnam | Grade: 500g/l FAQ', image_url: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=800&q=80', is_active: true },
+    { name: 'White Rice', category: 'Grains', description: 'Origin: Thailand | Grade: 5% Broken', image_url: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&q=80', is_active: true },
+    { name: 'Almonds', category: 'Nuts', description: 'Origin: USA / California | Grade: Nonpareil 27/30', image_url: 'https://images.unsplash.com/photo-1508061253366-f7da158b6d46?w=800&q=80', is_active: true }
+  ]
+
   return (
     <>
       <HeroSlider />
@@ -36,7 +54,7 @@ export default function HomePage() {
             <img src="/images/about-harvesting.png" alt="Farm workers" className="w-full h-full object-cover saturate-[0.85]" />
             <div className="absolute inset-0 rounded-[24px] shadow-[inset_0_0_80px_rgba(0,0,0,0.1)] pointer-events-none" />
           </div>
-<div className="order-1 lg:order-2">
+          <div className="order-1 lg:order-2">
             <h2 className="section-title">At HARVEN, we believe food is more than <strong>a commodity.</strong></h2>
             <p className="section-sub mb-8">Born in the UAE — a global crossroads of trade — HARVEN exists to connect the world's finest producers with markets that demand quality, reliability, and scale.</p>
             <div className="font-display text-[1.1rem] lg:text-[1.3rem] font-normal italic text-forest leading-[1.6] border-l-[3px] border-terracotta pl-[1.5rem] my-[2rem]">
@@ -163,42 +181,42 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* PRODUCTS PREVIEW */}
-      <section className="bg-white py-16 lg:py-28 px-6 lg:px-16 w-full overflow-hidden">
+      {/* STOCK PREVIEW - DYNAMICALLY CONNECTED */}
+      <section id="stock" className="bg-cream py-16 lg:py-28 px-6 lg:px-16 overflow-hidden w-full">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12 lg:mb-16">
-            <span className="section-tag">Global Portfolio</span>
-            <h2 className="section-title">Premium <strong>Commodities</strong></h2>
-            <p className="section-sub mx-auto">Explore our diverse catalog of carefully curated agricultural products.</p>
+          <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-4 mb-10 lg:mb-14">
+            <div>
+              <span className="section-tag">Live Inventory</span>
+              <h2 className="section-title">Stock <strong>Board</strong></h2>
+              <p className="section-sub text-left m-0 mt-2">Current availability at our distribution hubs.</p>
+            </div>
+            <div className="flex items-center gap-[0.6rem] bg-forest/5 border border-forest/10 px-[1.1rem] py-[0.5rem] rounded-full self-start sm:self-auto">
+               <div className="w-[7px] h-[7px] rounded-full bg-sage animate-[pulse_1.5s_ease-in-out_infinite] shadow-[0_0_10px_rgba(139,175,124,0.3)]" />
+               <span className="font-mono text-[0.58rem] text-forest tracking-[0.08em] uppercase">Trading Now</span>
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
-            {[
-              { img: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=800&q=80", title: "Spices & Seasonings", desc: "High-grade Black Pepper, Cardamom, and authentic regional spices.", tags: ["Black Pepper", "Cardamom", "Cloves"] },
-              { img: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&q=80", title: "Premium Grains", desc: "Sourced globally, processed to perfection. Rice, Wheat, and specialty grains.", tags: ["White Rice", "Basmati", "Quinoa"] },
-              { img: "https://images.unsplash.com/photo-1508061253366-f7da158b6d46?w=800&q=80", title: "Dry Fruits & Nuts", desc: "California Almonds, premium Cashews, and rich Pistachios.", tags: ["Almonds", "Cashews", "Pistachios"] },
-            ].map(prod => (
-              <div key={prod.title} className="bg-cream border border-black/5 rounded-[20px] overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(45,90,61,0.07),0_4px_16px_rgba(0,0,0,0.02)] group">
-                 <div className="w-full h-[200px] overflow-hidden relative">
-                    <img src={prod.img} alt={prod.title} className="w-full h-full object-cover saturate-[0.85] transition-all duration-700 group-hover:scale-110 group-hover:saturate-100" />
-                    <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-cream to-transparent pointer-events-none" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {displayStock.map(stock => (
+               <div key={stock.name} className="bg-white border border-black/5 rounded-[20px] overflow-hidden transition-all duration-500 hover:-translate-y-[4px] hover:shadow-[0_16px_50px_rgba(45,90,61,0.07)] group">
+                 <div className="w-full h-[180px] overflow-hidden relative">
+                    <img src={stock.image_url || 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=800&q=80'} alt="" className="w-full h-full object-cover saturate-[0.8] transition-all duration-700 group-hover:scale-110 group-hover:saturate-100" />
+                    <Badge variant="available" className="absolute top-4 left-4">Available Now</Badge>
                  </div>
-                 <div className="p-6 pt-0">
-                    <h3 className="font-display text-[1.25rem] font-semibold text-text-dark mb-1">{prod.title}</h3>
-                    <p className="text-[0.82rem] text-text-muted leading-[1.7] font-light mb-4">{prod.desc}</p>
-                    <div className="flex flex-wrap gap-1.5">
-                       {prod.tags.map(t => (
-                         <span key={t} className="font-mono text-[0.55rem] px-[10px] py-[3px] rounded-full bg-cream-warm text-text-mid border border-cream-dark transition-all group-hover:border-sage-light group-hover:bg-sage/10">
-                           {t}
-                         </span>
-                       ))}
-                    </div>
+                 <div className="p-5 lg:p-6 lg:pt-5">
+                    <div className="font-mono text-[0.52rem] tracking-[0.15em] uppercase text-text-muted mb-2">{stock.category}</div>
+                    <h3 className="font-display text-[1.3rem] lg:text-[1.4rem] font-semibold text-text-dark mb-1">{stock.name}</h3>
+                    <p className="text-[0.75rem] text-text-muted mb-5 font-light line-clamp-2 min-h-[2.5rem]">{stock.description}</p>
+                    
+                    <Link href="/contact" className="block mt-[1.4rem] text-center w-full rounded-full py-2.5 lg:py-3 text-[0.76rem] tracking-[0.03em] font-medium transition-all hover:-translate-y-[1px] bg-forest text-white hover:bg-forest-deep">
+                      Request Quote
+                    </Link>
                  </div>
-              </div>
+               </div>
             ))}
           </div>
-          <div className="text-center mt-10 lg:mt-12">
-            <Link href="/products" className="inline-flex items-center gap-2 border-[1.5px] border-forest text-forest px-[2.8rem] py-[0.9rem] rounded-full font-medium text-[0.82rem] tracking-[0.04em] transition-all hover:bg-forest hover:text-white hover:-translate-y-[2px]">
-              View All Categories <ArrowRight size={16} />
+          <div className="text-center mt-12">
+            <Link href="/products" className="inline-flex items-center gap-2 text-forest-mid hover:text-forest transition-colors font-medium text-sm">
+              See full stock catalog <ArrowRight size={16} />
             </Link>
           </div>
         </div>
@@ -223,55 +241,6 @@ export default function HomePage() {
                  <h4 className="font-display text-[0.95rem] lg:text-[1rem] font-semibold text-text-dark mb-2">{cmt.title}</h4>
                  <p className="text-[0.7rem] lg:text-[0.75rem] text-text-muted leading-[1.65] font-light">{cmt.desc}</p>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* STOCK PREVIEW */}
-      <section id="stock" className="bg-cream py-16 lg:py-28 px-6 lg:px-16 overflow-hidden w-full">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-4 mb-10 lg:mb-14">
-            <div>
-              <span className="section-tag">Live Inventory</span>
-              <h2 className="section-title">Stock <strong>Board</strong></h2>
-            </div>
-            <div className="flex items-center gap-[0.6rem] bg-forest/5 border border-forest/10 px-[1.1rem] py-[0.5rem] rounded-full self-start sm:self-auto">
-               <div className="w-[7px] h-[7px] rounded-full bg-sage animate-[pulse_1.5s_ease-in-out_infinite] shadow-[0_0_10px_rgba(139,175,124,0.3)]" />
-               <span className="font-mono text-[0.58rem] text-forest tracking-[0.08em] uppercase">Trading Now</span>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-             {/* ... Same stock cards logic ... */}
-            {[
-              { status: 'available', title: 'Black Pepper', category: 'Spices', origin: 'Vietnam', grade: '500g/l FAQ', price: 'Contact for CIF', img: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=800&q=80' },
-              { status: 'incoming', title: 'White Rice', category: 'Grains', origin: 'Thailand', grade: '5% Broken', price: 'Book Advance', img: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&q=80' },
-              { status: 'available', title: 'Almonds', category: 'Nuts', origin: 'USA / California', grade: 'Nonpareil 27/30', price: 'FOB Options', img: 'https://images.unsplash.com/photo-1508061253366-f7da158b6d46?w=800&q=80' }
-            ].map(stock => (
-               <div key={stock.title} className={`bg-white border border-black/5 rounded-[20px] overflow-hidden transition-all duration-500 hover:-translate-y-[4px] hover:shadow-[0_16px_50px_rgba(45,90,61,0.07)] group ${stock.status === 'incoming' ? 'incoming' : ''}`}>
-                 <div className="w-full h-[180px] overflow-hidden relative">
-                    <img src={stock.img} alt="" className="w-full h-full object-cover saturate-[0.8] transition-all duration-700 group-hover:scale-110 group-hover:saturate-100" />
-                    <Badge variant={stock.status as any} className="absolute top-4 left-4">{stock.status === 'available' ? 'Available' : 'Incoming'}</Badge>
-                 </div>
-                 <div className="p-5 lg:p-6 lg:pt-5">
-                    <div className="font-mono text-[0.52rem] tracking-[0.15em] uppercase text-text-muted mb-2">{stock.category}</div>
-                    <h3 className="font-display text-[1.3rem] lg:text-[1.4rem] font-semibold text-text-dark mb-1">{stock.title}</h3>
-                    <div className="text-[0.75rem] text-text-muted mb-5 font-light">Origin: <strong className="text-text-mid font-medium">{stock.origin}</strong></div>
-                    
-                    <div className="flex justify-between text-[0.76rem] py-2 border-b border-cream-dark">
-                      <span className="text-text-muted font-mono text-[0.62rem] tracking-[0.03em] uppercase">Grade</span>
-                      <span className="text-text-dark font-medium">{stock.grade}</span>
-                    </div>
-                    <div className="flex justify-between text-[0.76rem] py-2">
-                      <span className="text-text-muted font-mono text-[0.62rem] tracking-[0.03em] uppercase">Pricing</span>
-                      <span className="text-text-dark font-medium">{stock.price}</span>
-                    </div>
-
-                    <Link href={`/${stock.title.toLowerCase().replace(' ', '-')}`} className={`block mt-[1.4rem] text-center w-full rounded-full py-2.5 lg:py-3 text-[0.76rem] tracking-[0.03em] font-medium transition-all hover:-translate-y-[1px] ${stock.status === 'incoming' ? 'bg-terracotta text-white hover:bg-[#b5603e]' : 'bg-forest text-white hover:bg-forest-deep'}`}>
-                      {stock.status === 'incoming' ? 'Pre-Order Now' : 'Request Quote'}
-                    </Link>
-                 </div>
-               </div>
             ))}
           </div>
         </div>
@@ -316,10 +285,8 @@ export default function HomePage() {
       </section>
 
       {/* ORIGINS */}
-      <section className="bg-cream py-16 lg:py-28 px-6 lg:px-16 overflow-hidden w-full">
+      <section className="bg-cream py-16 lg:py-28 px-6 lg:px-16 overflow-hidden w-full border-t border-black/5">
         <div className="max-w-7xl mx-auto flex flex-col lg:grid lg:grid-cols-2 gap-10 lg:gap-16 items-start">
-           
-           {/* IMAGE NOW RENDERED ABOVE LIST ON MOBILE */}
            <div className="rounded-[20px] overflow-hidden relative w-full aspect-[4/3] order-1 lg:order-2 shadow-sm">
               <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1000&q=80" alt="World Map Trading" className="w-full h-full object-cover saturate-[0.65] brightness-95" />
               <div className="absolute inset-0 bg-gradient-to-br from-forest/10 to-terracotta/5 pointer-events-none" />
@@ -348,7 +315,6 @@ export default function HomePage() {
                 </div>
               ))}
            </div>
-           
         </div>
       </section>
 

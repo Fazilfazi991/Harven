@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { LayoutDashboard, FileText, Image as ImageIcon, Box, Bot, Inbox, Settings, Menu, X, LogOut } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -11,6 +12,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (pathname === '/admin/login') {
     return <>{children}</>
+  }
+
+  const handleSignOut = async () => {
+    try {
+      const supabase = createClient()
+      await supabase.auth.signOut()
+      window.location.href = '/admin/login'
+    } catch (err) {
+      console.error(err)
+      window.location.href = '/admin/login'
+    }
   }
 
   const links = [
@@ -56,7 +68,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
         <div className="p-4 border-t border-white/10 mt-auto">
-          <button className="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors text-sm font-medium w-full text-white/60 hover:bg-terracotta/20 hover:text-terracotta">
+          <button 
+            onClick={handleSignOut}
+            className="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors text-sm font-medium w-full text-white/60 hover:bg-terracotta/20 hover:text-terracotta"
+          >
             <LogOut size={20} /> Sign Out
           </button>
         </div>

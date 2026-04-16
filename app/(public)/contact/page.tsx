@@ -7,15 +7,43 @@ import { MapPin, Phone, Mail } from 'lucide-react'
 export default function ContactPage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [error, setError] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    // mock API integration delay
-    setTimeout(() => {
-      setSuccess(true)
+    setError('')
+    
+    const formData = new FormData(e.target as HTMLFormElement)
+    const payload = {
+      name: formData.get('name'),
+      company: formData.get('company'),
+      email: formData.get('email'),
+      phone: formData.get('phone'),
+      product_interest: formData.get('product_interest'),
+      quantity: formData.get('quantity'),
+      message: formData.get('message'),
+      source: 'contact_form'
+    }
+
+    try {
+      const resp = await fetch('/api/inquiries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      
+      const data = await resp.json()
+      if (resp.ok) {
+        setSuccess(true)
+      } else {
+        setError(data.error || 'Failed to submit inquiry')
+      }
+    } catch (err) {
+      setError('Connection error. Please check your internet and try again.')
+    } finally {
       setLoading(false)
-    }, 1500)
+    }
   }
 
   return (
@@ -86,29 +114,30 @@ export default function ContactPage() {
                 <div className="text-4xl mb-4">✅</div>
                 <h4 className="font-display text-xl font-semibold text-forest mb-2">Inquiry Received</h4>
                 <p className="text-text-muted font-light mb-6">Our trading team will review your request and get back to you shortly.</p>
-                <a href="https://wa.me/971501234567" target="_blank" rel="noreferrer" className="inline-block bg-forest text-white px-6 py-3 rounded-full hover:bg-forest-deep transition-colors text-sm font-medium">Follow up on WhatsApp</a>
+                <a href="https://wa.me/971561625698" target="_blank" rel="noreferrer" className="inline-block bg-forest text-white px-6 py-3 rounded-full hover:bg-forest-deep transition-colors text-sm font-medium">Follow up on WhatsApp</a>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                {error && <div className="bg-terracotta/10 text-terracotta text-sm p-4 rounded-xl">{error}</div>}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <input type="text" placeholder="Full Name *" required className="p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none focus:ring-1 focus:ring-sage" />
-                  <input type="text" placeholder="Company Name *" required className="p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none focus:ring-1 focus:ring-sage" />
+                  <input name="name" type="text" placeholder="Full Name *" required className="p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none focus:ring-1 focus:ring-sage" />
+                  <input name="company" type="text" placeholder="Company Name *" required className="p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none focus:ring-1 focus:ring-sage" />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <input type="email" placeholder="Email Address *" required className="p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none focus:ring-1 focus:ring-sage" />
-                  <input type="tel" placeholder="Phone / WhatsApp *" required className="p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none focus:ring-1 focus:ring-sage" />
+                  <input name="email" type="email" placeholder="Email Address *" required className="p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none focus:ring-1 focus:ring-sage" />
+                  <input name="phone" type="tel" placeholder="Phone / WhatsApp *" required className="p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none focus:ring-1 focus:ring-sage" />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <select required className="p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none focus:ring-1 focus:ring-sage text-text-dark">
+                  <select name="product_interest" required className="p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none focus:ring-1 focus:ring-sage text-text-dark">
                     <option value="" disabled selected>Product Interest *</option>
                     <option value="spices">Spices</option>
                     <option value="grains">Grains</option>
                     <option value="nuts">Nuts & Dry Fruits</option>
                     <option value="other">Other</option>
                   </select>
-                  <input type="text" placeholder="Quantity Required *" required className="p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none focus:ring-1 focus:ring-sage" />
+                  <input name="quantity" type="text" placeholder="Quantity Required *" required className="p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none focus:ring-1 focus:ring-sage" />
                 </div>
-                <textarea rows={5} placeholder="Your Message *" required className="p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none focus:ring-1 focus:ring-sage" />
+                <textarea name="message" rows={5} placeholder="Your Message *" required className="p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none focus:ring-1 focus:ring-sage" />
                 <Button variant="primary" type="submit" className="w-full mt-2" disabled={loading}>
                   {loading ? 'Sending...' : 'Submit Inquiry'}
                 </Button>
