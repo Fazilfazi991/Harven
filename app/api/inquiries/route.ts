@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     }
 
     // 2. Send Email Notification (if API key is present)
-    if (process.env.RESEND_API_KEY) {
+    if (resend) {
       try {
         await resend.emails.send({
           from: 'Harven Inquiries <onboarding@resend.dev>', // Update this with client's domain later
