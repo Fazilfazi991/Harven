@@ -1,8 +1,73 @@
 "use client";
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import { Search, Mail, Phone, Building2, Package, Globe, ExternalLink, RefreshCw, Terminal } from 'lucide-react'
 
 export default function InquiriesCMS() {
+  const [inquiries, setInquiries] = useState<any[]>([])
+  const [selectedInquiry, setSelectedInquiry] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetchInquiries()
+  }, [])
+
+  const fetchInquiries = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const supabase = createClient()
+      const { data, error: fetchErr } = await supabase
+        .from('inquiries')
+        .select('*')
+        .order('created_at', { ascending: false })
+      
+      if (fetchErr) {
+        console.error(fetchErr)
+        setError("Failed to fetch inquiries. Check database connection.")
+      }
+
+      if (data) {
+        setInquiries(data)
+        if (data.length > 0 && !selectedInquiry) {
+          setSelectedInquiry(data[0])
+        } else if (data.length === 0) {
+          setSelectedInquiry(null)
+        }
+      }
+    } catch (err) {
+      console.error(err)
+      setError("An unexpected error occurred.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const updateStatus = async (id: string, newStatus: string) => {
+     try {
+       const supabase = createClient()
+       const { error: updateErr } = await supabase.from('inquiries').update({ status: newStatus }).eq('id', id)
+       if (!updateErr) {
+         setInquiries(prev => prev.map(inv => inv.id === id ? { ...inv, status: newStatus } : inv))
+         if (selectedInquiry?.id === id) {
+           setSelectedInquiry({ ...selectedInquiry, status: newStatus })
+         }
+       }
+     } catch (err) {
+       console.error(err)
+     }
+  }
+
+  const filteredInquiries = inquiries.filter(inv => 
+    (inv.company?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (inv.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (inv.email?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (inv.product_interest?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  )
+
   return (
     <>
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8">
@@ -10,76 +75,152 @@ export default function InquiriesCMS() {
           <h1 className="font-display text-3xl font-semibold text-text-dark">Inquiries Inbox</h1>
           <p className="text-text-muted mt-2">Manage wholesale requests from the chatbot, contact form, and landing pages.</p>
         </div>
-        <button className="px-6 py-2.5 rounded-lg border border-cream-dark bg-white text-sm font-medium hover:bg-cream transition-colors text-text-dark">
-          Export CSV
-        </button>
+        <div className="flex gap-3">
+          <button onClick={fetchInquiries} className="p-2.5 rounded-lg border border-cream-dark bg-white hover:bg-cream transition-colors text-text-muted">
+            <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
+          </button>
+          <button className="px-6 py-2.5 rounded-lg border border-cream-dark bg-white text-sm font-medium hover:bg-cream transition-colors text-text-dark">
+            Export CSV
+          </button>
+        </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-black/5 shadow-sm overflow-hidden flex flex-col md:flex-row min-h-[60vh]">
+      {error && (
+        <div className="mb-8 p-4 bg-terracotta/10 border border-terracotta/20 rounded-xl text-terracotta flex items-center gap-3">
+          <Terminal size={20} />
+          <p className="text-sm font-medium">{error}</p>
+        </div>
+      )}
+
+      <div className="bg-white rounded-2xl border border-black/5 shadow-sm overflow-hidden flex flex-col md:flex-row min-h-[70vh]">
          {/* List View */}
          <div className="w-full md:w-1/2 lg:w-2/5 border-r border-cream-dark flex flex-col">
            <div className="p-4 border-b border-cream-dark bg-cream-warm flex gap-2">
-             <input type="text" placeholder="Search inquiries..." className="p-2 text-sm w-full bg-white border border-black/10 rounded focus:outline-forest" />
+             <div className="relative w-full">
+               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+               <input 
+                 type="text" 
+                 placeholder="Search inquiries..." 
+                 className="p-2 pl-10 text-sm w-full bg-white border border-black/10 rounded-lg focus:outline-forest" 
+                 value={searchTerm}
+                 onChange={(e) => setSearchTerm(e.target.value)}
+               />
+             </div>
            </div>
            <div className="overflow-y-auto flex-1 h-[600px] bg-white">
-             {/* Inquiry Card List Mock */}
-             {[1,2,3,4,5].map((i) => (
-               <div key={i} className={`p-4 border-b border-cream-dark cursor-pointer transition-colors ${i === 1 ? 'bg-forest/5 border-l-4 border-l-forest' : 'hover:bg-cream/50'}`}>
-                 <div className="flex justify-between items-start mb-1">
-                   <h4 className="font-semibold text-text-dark text-sm">John Smith Trading LLC</h4>
-                   <span className="text-xs text-text-muted">Just now</span>
-                 </div>
-                 <div className="text-xs text-text-muted mb-2 line-clamp-1">Need 1 FCL Black Pepper...</div>
-                 <div className="flex justify-between items-center mt-2">
-                   <span className="bg-cream px-2 py-0.5 rounded text-[10px] font-mono uppercase text-text-muted border border-cream-dark/50">Chatbot</span>
-                   {i === 1 && <span className="bg-orange-100 text-orange-700 text-[10px] uppercase font-bold px-2 py-0.5 rounded">New</span>}
-                 </div>
-               </div>
-             ))}
+             {loading && inquiries.length === 0 ? (
+               <div className="p-10 text-center opacity-30">Loading inbox...</div>
+             ) : filteredInquiries.length === 0 ? (
+               <div className="p-10 text-center text-text-muted italic">No inquiries found.</div>
+             ) : filteredInquiries.map((inv) => (
+                <div 
+                  key={inv.id} 
+                  onClick={() => setSelectedInquiry(inv)}
+                  className={`p-5 border-b border-cream-dark cursor-pointer transition-colors ${selectedInquiry?.id === inv.id ? 'bg-forest/5 border-l-4 border-l-forest' : 'hover:bg-cream/50'}`}
+                >
+                  <div className="flex justify-between items-start mb-1">
+                    <h4 className="font-semibold text-text-dark text-sm truncate pr-2">{inv.company || inv.name || 'Anonymous'}</h4>
+                    <span className="text-[0.6rem] text-text-muted uppercase font-medium shrink-0">
+                      {new Date(inv.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <div className="text-xs text-text-muted mb-3 line-clamp-1">{inv.message || 'No message content'}</div>
+                  <div className="flex justify-between items-center mt-2">
+                    <span className="bg-cream px-2 py-0.5 rounded text-[10px] font-mono uppercase text-text-muted border border-cream-dark/50">
+                      {inv.source}
+                    </span>
+                    <span className={`text-[9px] uppercase font-bold px-2 py-0.5 rounded ${
+                      inv.status === 'new' ? 'bg-orange-100 text-orange-700' : 
+                      inv.status === 'responded' ? 'bg-blue-100 text-blue-700' : 
+                      'bg-gray-100 text-gray-700'
+                    }`}>
+                      {inv.status}
+                    </span>
+                  </div>
+                </div>
+              ))}
            </div>
          </div>
 
          {/* Detail View */}
-         <div className="w-full md:w-1/2 lg:w-3/5 p-8 bg-cream-warm">
-           <div className="bg-white p-6 rounded-xl border border-black/5 shadow-sm h-full">
-              <div className="flex justify-between items-start border-b border-cream-dark pb-4 mb-6">
-                 <div>
-                   <h2 className="font-display text-2xl font-semibold text-text-dark">John Smith Trading LLC</h2>
-                   <div className="text-sm text-text-muted mt-1">john@smithtrading.com • +971 50 111 2222</div>
-                 </div>
-                 <select className="p-2 text-sm bg-orange-100 text-orange-800 font-semibold border-none rounded outline-none cursor-pointer">
-                    <option value="new">Status: New</option>
-                    <option value="responded">Status: Responded</option>
-                    <option value="closed">Status: Closed</option>
-                 </select>
-              </div>
+         <div className="w-full md:w-1/2 lg:w-3/5 p-4 lg:p-8 bg-cream-warm">
+           {selectedInquiry ? (
+             <div className="bg-white p-6 lg:p-10 rounded-2xl border border-black/5 shadow-sm h-full flex flex-col">
+                <div className="flex flex-col lg:flex-row justify-between lg:items-start border-b border-cream-dark pb-6 mb-8 gap-4">
+                   <div>
+                     <h2 className="font-display text-3xl font-semibold text-text-dark">{selectedInquiry.company || 'Not Provided'}</h2>
+                     <div className="flex flex-wrap gap-4 mt-3">
+                        <div className="flex items-center gap-2 text-sm text-text-mid">
+                           <Mail size={16} className="text-forest/60" /> {selectedInquiry.email || 'N/A'}
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-text-mid">
+                           <Phone size={16} className="text-forest/60" /> {selectedInquiry.phone || 'N/A'}
+                        </div>
+                     </div>
+                   </div>
+                   <select 
+                     value={selectedInquiry.status}
+                     onChange={(e) => updateStatus(selectedInquiry.id, e.target.value)}
+                     className={`p-2.5 text-[0.65rem] font-bold border-none rounded-lg outline-none cursor-pointer shadow-sm transition-colors ${
+                       selectedInquiry.status === 'new' ? 'bg-orange-100 text-orange-800 hover:bg-orange-200' : 
+                       selectedInquiry.status === 'responded' ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' : 
+                       'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                     }`}
+                   >
+                      <option value="new">MARK AS NEW</option>
+                      <option value="responded">MARK AS RESPONDED</option>
+                      <option value="closed">MARK AS CLOSED</option>
+                   </select>
+                </div>
 
-              <div className="grid grid-cols-2 gap-6 mb-8">
-                 <div>
-                   <div className="text-xs font-mono uppercase text-text-muted tracking-wide mb-1">Product Interest</div>
-                   <div className="font-medium text-text-dark">Black Pepper</div>
-                 </div>
-                 <div>
-                   <div className="text-xs font-mono uppercase text-text-muted tracking-wide mb-1">Quantity</div>
-                   <div className="font-medium text-text-dark">1 FCL</div>
-                 </div>
-                 <div>
-                   <div className="text-xs font-mono uppercase text-text-muted tracking-wide mb-1">Country / Region</div>
-                   <div className="font-medium text-text-dark">United Arab Emirates</div>
-                 </div>
-                 <div>
-                   <div className="text-xs font-mono uppercase text-text-muted tracking-wide mb-1">Source Path</div>
-                   <div className="font-medium text-text-dark">/premium-black-pepper</div>
-                 </div>
-              </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+                   <div className="bg-cream/40 p-5 rounded-2xl border border-black/5">
+                     <div className="text-[0.65rem] font-mono uppercase text-text-muted tracking-widest mb-2 flex items-center gap-2">
+                       <Package size={12} className="text-sage" /> Product Interest
+                     </div>
+                     <div className="font-medium text-text-dark">{selectedInquiry.product_interest || 'N/A'}</div>
+                   </div>
+                   <div className="bg-cream/40 p-5 rounded-2xl border border-black/5">
+                     <div className="text-[0.65rem] font-mono uppercase text-text-muted tracking-widest mb-2 flex items-center gap-2">
+                       <RefreshCw size={12} className="text-sage" /> Quantity
+                     </div>
+                     <div className="font-medium text-text-dark">{selectedInquiry.quantity || 'N/A'}</div>
+                   </div>
+                   <div className="bg-cream/40 p-5 rounded-2xl border border-black/5">
+                     <div className="text-[0.65rem] font-mono uppercase text-text-muted tracking-widest mb-2 flex items-center gap-2">
+                       <Globe size={12} className="text-sage" /> Country / Region
+                     </div>
+                     <div className="font-medium text-text-dark">{selectedInquiry.country || 'N/A'}</div>
+                   </div>
+                   <div className="bg-cream/40 p-5 rounded-2xl border border-black/5">
+                     <div className="text-[0.65rem] font-mono uppercase text-text-muted tracking-widest mb-2 flex items-center gap-2">
+                       <ExternalLink size={12} className="text-sage" /> Lead Source
+                     </div>
+                     <div className="font-medium text-text-dark capitalize">{selectedInquiry.source}</div>
+                   </div>
+                </div>
 
-              <div className="bg-cream p-4 rounded-xl border border-cream-dark">
-                <div className="text-xs font-mono uppercase text-text-muted tracking-wide mb-2">Message Content</div>
-                <p className="text-sm text-text-dark leading-relaxed font-light">
-                  Hi, we are looking for 1 FCL of Premium Black Pepper. Please share exact specs including ASTA color value and moisture content. We can sign a long term contract if quality is good. Thanks.
-                </p>
-              </div>
-           </div>
+                <div className="bg-cream/50 p-6 lg:p-8 rounded-[32px] border border-cream-dark flex-1 shadow-inner">
+                  <div className="text-[0.65rem] font-mono uppercase text-text-muted tracking-widest mb-6 border-b border-cream-dark pb-2">Message Content</div>
+                  <p className="text-[1.05rem] text-text-dark leading-relaxed font-light whitespace-pre-wrap">
+                    {selectedInquiry.message || 'No additional details provided.'}
+                  </p>
+                </div>
+                
+                <div className="mt-8 pt-6 border-t border-cream-dark flex flex-col sm:flex-row justify-between items-center gap-2">
+                   <div className="text-[0.65rem] text-text-muted font-mono">
+                      REF: {selectedInquiry.id}
+                   </div>
+                   <div className="text-[0.65rem] text-text-muted uppercase tracking-wider">
+                      Timestamp: {new Date(selectedInquiry.created_at).toLocaleString()}
+                   </div>
+                </div>
+             </div>
+           ) : (
+             <div className="h-full flex items-center justify-center text-text-muted italic opacity-40">
+               Select an inquiry from the list to view details
+             </div>
+           )}
          </div>
       </div>
     </>

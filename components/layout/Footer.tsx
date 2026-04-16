@@ -7,7 +7,7 @@ export function Footer() {
       {/* Top Gradient Border */}
       <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-sage via-terracotta via-wheat to-transparent opacity-30" />
       
-      <div className="grid grid-cols-1 lg:grid-cols-[2.5fr_1fr_1fr_1fr] gap-12 mb-16 relative z-10">
+      <div className="grid grid-cols-1 lg:grid-cols-[2.5fr_1fr_1fr_1fr] gap-8 lg:gap-12 mb-12 lg:mb-16 relative z-10">
         <div className="flex flex-col gap-5">
           <Link href="/" className="no-underline">
             <img src="/images/logo-white.svg" alt="HARVEN" className="h-10 lg:h-14 w-auto object-contain transition-all" />
@@ -18,8 +18,8 @@ export function Footer() {
         </div>
 
         <div className="flex flex-col">
-          <h4 className="text-white/45 font-mono text-[0.58rem] tracking-[0.15em] uppercase mb-[1.4rem]">Sourcing</h4>
-          <ul className="flex flex-col gap-[0.7rem] list-none p-0 m-0">
+          <h4 className="text-white/45 font-mono text-[0.58rem] tracking-[0.15em] uppercase mb-[0.8rem] lg:mb-[1.4rem]">Sourcing</h4>
+          <ul className="flex flex-col gap-[0.5rem] lg:gap-[0.7rem] list-none p-0 m-0">
             <li><Link href="/products" className="text-white/30 text-[0.82rem] font-light no-underline transition-all hover:text-white hover:translate-x-1 inline-block">All Products</Link></li>
             <li><Link href="/products?category=spices" className="text-white/30 text-[0.82rem] font-light no-underline transition-all hover:text-white hover:translate-x-1 inline-block">Spices</Link></li>
             <li><Link href="/products?category=grains" className="text-white/30 text-[0.82rem] font-light no-underline transition-all hover:text-white hover:translate-x-1 inline-block">Grains</Link></li>
@@ -28,8 +28,8 @@ export function Footer() {
         </div>
 
         <div className="flex flex-col">
-          <h4 className="text-white/45 font-mono text-[0.58rem] tracking-[0.15em] uppercase mb-[1.4rem]">Company</h4>
-          <ul className="flex flex-col gap-[0.7rem] list-none p-0 m-0">
+          <h4 className="text-white/45 font-mono text-[0.58rem] tracking-[0.15em] uppercase mb-[0.8rem] lg:mb-[1.4rem]">Company</h4>
+          <ul className="flex flex-col gap-[0.5rem] lg:gap-[0.7rem] list-none p-0 m-0">
             <li><Link href="/about" className="text-white/30 text-[0.82rem] font-light no-underline transition-all hover:text-white hover:translate-x-1 inline-block">Our Promise</Link></li>
             <li><Link href="/about#process" className="text-white/30 text-[0.82rem] font-light no-underline transition-all hover:text-white hover:translate-x-1 inline-block">Trading Process</Link></li>
             <li><Link href="/contact" className="text-white/30 text-[0.82rem] font-light no-underline transition-all hover:text-white hover:translate-x-1 inline-block">Careers</Link></li>
@@ -37,12 +37,12 @@ export function Footer() {
         </div>
 
         <div className="flex flex-col">
-          <h4 className="text-white/45 font-mono text-[0.58rem] tracking-[0.15em] uppercase mb-[1.4rem]">Contact</h4>
-          <ul className="flex flex-col gap-[0.7rem] list-none p-0 m-0">
+          <h4 className="text-white/45 font-mono text-[0.58rem] tracking-[0.15em] uppercase mb-[0.8rem] lg:mb-[1.4rem]">Contact</h4>
+          <ul className="flex flex-col gap-[0.5rem] lg:gap-[0.7rem] list-none p-0 m-0">
             <li><a href="mailto:harvenllc@gmail.com" className="text-white/30 text-[0.8rem] font-light no-underline transition-colors hover:text-white">harvenllc@gmail.com</a></li>
             <li><a href="tel:+971561625698" className="text-white/30 text-[0.8rem] font-light no-underline transition-colors hover:text-white">+971 56 162 5698</a></li>
             <li><a href="tel:+971547226003" className="text-white/30 text-[0.8rem] font-light no-underline transition-colors hover:text-white">+971 54 722 6003</a></li>
-            <li className="text-white/30 text-[0.8rem] font-light mt-2">Dubai, UAE</li>
+            <li className="text-white/30 text-[0.8rem] font-light mt-1">Dubai, UAE</li>
           </ul>
         </div>
       </div>

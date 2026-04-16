@@ -5,7 +5,9 @@ create table slides (
   subtitle text,
   cta_text text,
   cta_link text,
-  image_url text,
+  media_type text default 'image', -- 'image' | 'video'
+  image_url text,                  -- Used as main background or video poster
+  video_url text,                  -- URL to the video file
   badge_text text,
   is_active boolean default true,
   sort_order integer default 0,

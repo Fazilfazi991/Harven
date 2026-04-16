@@ -2,11 +2,16 @@
 
 import React, { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { Terminal, AlertCircle, RefreshCw, Plus, Image as ImageIcon, Video, Trash2, Edit2, Play, Pause } from 'lucide-react'
 
 export default function HomepageCMS() {
   const [activeTab, setActiveTab] = useState('slider')
   const [slides, setSlides] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  
+  // Slide Editing State
+  const [editingSlide, setEditingSlide] = useState<any>(null)
 
   useEffect(() => {
     fetchSlides()
@@ -14,12 +19,24 @@ export default function HomepageCMS() {
 
   const fetchSlides = async () => {
     setLoading(true)
+    setError(null)
     try {
       const supabase = createClient()
-      const { data } = await supabase.from('slides').select('*').order('sort_order')
+      const { data, error: fetchErr } = await supabase.from('slides').select('*').order('sort_order')
+      
+      if (fetchErr) {
+        console.error("Slides Fetch Error:", fetchErr)
+        if (process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('mock')) {
+           setError("Connected to Mock Database. Please configure Supabase environment variables in your .env file to see real slides.")
+        } else {
+           setError("Failed to fetch slides. Check your database connection and 'slides' table.")
+        }
+      }
+
       if (data) setSlides(data)
     } catch (e) {
       console.log(e)
+      setError("An unexpected error occurred while connecting to the database.")
     } finally {
       setLoading(false)
     }
@@ -29,19 +46,126 @@ export default function HomepageCMS() {
     if (!confirm("Remove this slide?")) return
     try {
        const supabase = createClient()
-       await supabase.from('slides').delete().eq('id', id)
-       fetchSlides()
+       const { error: deleteErr } = await supabase.from('slides').delete().eq('id', id)
+       if (!deleteErr) {
+         fetchSlides()
+       } else {
+         alert("Failed to delete slide: " + deleteErr.message)
+       }
     } catch (err) {
        console.error(err)
     }
   }
 
+  const handleSaveSlide = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const supabase = createClient()
+    try {
+      if (editingSlide.id) {
+        await supabase.from('slides').update(editingSlide).eq('id', editingSlide.id)
+      } else {
+        await supabase.from('slides').insert([editingSlide])
+      }
+      setEditingSlide(null)
+      fetchSlides()
+    } catch (err) {
+      console.error(err)
+      alert("Error saving slide")
+    }
+  }
+
   return (
     <>
-      <div className="mb-8">
-        <h1 className="font-display text-3xl font-semibold text-text-dark">Homepage Configuration</h1>
-        <p className="text-text-muted mt-2">Manage the hero slider and site-wide content blocks.</p>
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8">
+        <div>
+          <h1 className="font-display text-3xl font-semibold text-text-dark">Homepage Configuration</h1>
+          <p className="text-text-muted mt-2">Manage the hero slider and site-wide content blocks.</p>
+        </div>
+        <button 
+          onClick={() => setEditingSlide({ title: '', subtitle: '', cta_text: 'Explore', cta_link: '/products', media_type: 'image', is_active: true, sort_order: (slides.length + 1) })}
+          className="flex items-center gap-2 bg-forest text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-forest-deep transition-colors shadow-sm"
+        >
+          <Plus size={18} /> Add New Slide
+        </button>
       </div>
+
+      {error && (
+        <div className="mb-8 p-4 bg-terracotta/10 border border-terracotta/20 rounded-xl text-terracotta flex items-start gap-3">
+          <Terminal size={20} className="shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-bold mb-1">Database Connection Warning</p>
+            <p className="text-xs font-medium leading-relaxed">{error}</p>
+          </div>
+        </div>
+      )}
+
+      {editingSlide && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <form onSubmit={handleSaveSlide} className="bg-white rounded-[32px] border border-black/5 shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8 lg:p-12">
+            <h2 className="font-display text-2xl font-semibold mb-8">{editingSlide.id ? 'Edit Slide' : 'Add New Slide'}</h2>
+            
+            <div className="flex flex-col gap-6">
+              <div className="flex bg-cream p-1 rounded-2xl border border-cream-dark w-fit">
+                <button 
+                  type="button"
+                  onClick={() => setEditingSlide({ ...editingSlide, media_type: 'image' })}
+                  className={`flex items-center gap-2 px-6 py-2.5 rounded-[14px] text-xs font-bold transition-all ${editingSlide.media_type === 'image' ? 'bg-white text-forest shadow-sm' : 'text-text-muted hover:text-text-dark'}`}
+                >
+                  <ImageIcon size={16} /> Image
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setEditingSlide({ ...editingSlide, media_type: 'video' })}
+                  className={`flex items-center gap-2 px-6 py-2.5 rounded-[14px] text-xs font-bold transition-all ${editingSlide.media_type === 'video' ? 'bg-white text-forest shadow-sm' : 'text-text-muted hover:text-text-dark'}`}
+                >
+                  <Video size={16} /> Video
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
+                <div className="space-y-1.5">
+                   <label className="text-[0.65rem] font-mono uppercase tracking-widest text-text-muted ml-1">Title (HTML allowed)</label>
+                   <input type="text" required value={editingSlide.title} onChange={e => setEditingSlide({...editingSlide, title: e.target.value})} className="w-full p-4 bg-cream/50 border border-cream-dark rounded-xl focus:outline-forest" />
+                </div>
+                <div className="space-y-1.5">
+                   <label className="text-[0.65rem] font-mono uppercase tracking-widest text-text-muted ml-1">Badge Text</label>
+                   <input type="text" value={editingSlide.badge_text || ''} onChange={e => setEditingSlide({...editingSlide, badge_text: e.target.value})} className="w-full p-4 bg-cream/50 border border-cream-dark rounded-xl focus:outline-forest" />
+                </div>
+                <div className="sm:col-span-2 space-y-1.5">
+                   <label className="text-[0.65rem] font-mono uppercase tracking-widest text-text-muted ml-1">Subtitle</label>
+                   <textarea rows={2} value={editingSlide.subtitle || ''} onChange={e => setEditingSlide({...editingSlide, subtitle: e.target.value})} className="w-full p-4 bg-cream/50 border border-cream-dark rounded-xl focus:outline-forest" />
+                </div>
+                
+                <div className="space-y-1.5">
+                   <label className="text-[0.65rem] font-mono uppercase tracking-widest text-text-muted ml-1">Poster Image URL</label>
+                   <input type="text" required value={editingSlide.image_url || ''} onChange={e => setEditingSlide({...editingSlide, image_url: e.target.value})} className="w-full p-4 bg-cream/50 border border-cream-dark rounded-xl focus:outline-forest" placeholder="https://..." />
+                </div>
+
+                {editingSlide.media_type === 'video' && (
+                  <div className="space-y-1.5">
+                    <label className="text-[0.65rem] font-mono uppercase tracking-widest text-text-muted ml-1">Video File URL/Path</label>
+                    <input type="text" required value={editingSlide.video_url || ''} onChange={e => setEditingSlide({...editingSlide, video_url: e.target.value})} className="w-full p-4 bg-cream/50 border border-forest/30 rounded-xl focus:outline-forest text-forest font-medium" placeholder="/videos/hero-1.mov" />
+                  </div>
+                )}
+
+                <div className="space-y-1.5">
+                   <label className="text-[0.65rem] font-mono uppercase tracking-widest text-text-muted ml-1">CTA Text</label>
+                   <input type="text" value={editingSlide.cta_text || ''} onChange={e => setEditingSlide({...editingSlide, cta_text: e.target.value})} className="w-full p-4 bg-cream/50 border border-cream-dark rounded-xl focus:outline-forest" />
+                </div>
+                <div className="space-y-1.5">
+                   <label className="text-[0.65rem] font-mono uppercase tracking-widest text-text-muted ml-1">CTA Link</label>
+                   <input type="text" value={editingSlide.cta_link || ''} onChange={e => setEditingSlide({...editingSlide, cta_link: e.target.value})} className="w-full p-4 bg-cream/50 border border-cream-dark rounded-xl focus:outline-forest" />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-10">
+               <button type="button" onClick={() => setEditingSlide(null)} className="px-6 py-3 text-sm font-bold text-text-muted hover:text-text-dark transition-colors">Cancel</button>
+               <button type="submit" className="bg-forest text-white px-10 py-3 rounded-xl text-sm font-bold hover:bg-forest-deep transition-all shadow-xl shadow-forest/10">Save Slide</button>
+            </div>
+          </form>
+        </div>
+      )}
 
       <div className="bg-white rounded-2xl border border-black/5 shadow-sm overflow-hidden">
         <div className="flex border-b border-black/5 px-6 pt-4 gap-6">
@@ -52,26 +176,51 @@ export default function HomepageCMS() {
         <div className="p-6 md:p-10 min-h-[50vh]">
           {activeTab === 'slider' && (
              <div className="flex flex-col gap-6">
-                <button className="self-end bg-forest text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-forest-deep transition-colors">Add New Slide</button>
+                <div className="flex justify-between items-center bg-cream/30 p-4 rounded-xl border border-cream-dark/50">
+                   <span className="text-xs font-mono uppercase text-text-muted tracking-widest">{slides.length} SLIDES CONFIGURED</span>
+                   <button onClick={fetchSlides} className="text-forest hover:opacity-70 transition-opacity">
+                      <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+                   </button>
+                </div>
                 
-                {loading ? (
-                   <p className="text-center font-light mt-10">Loading slides...</p>
+                {loading && slides.length === 0 ? (
+                   <div className="text-center py-20 flex flex-col items-center gap-4">
+                      <div className="w-12 h-12 border-2 border-forest/20 border-t-forest animate-spin rounded-full"></div>
+                      <p className="text-text-muted font-light">Checking database for slides...</p>
+                   </div>
                 ) : slides.length === 0 ? (
-                   <p className="text-center font-light mt-10">No live slides found.</p>
+                   <div className="text-center py-20 bg-cream/20 rounded-[32px] border border-dashed border-cream-dark">
+                      <AlertCircle size={48} className="mx-auto text-text-muted opacity-20 mb-4" />
+                      <p className="text-text-muted font-light">No slides found in the database.<br/>Try adding one or running the seed script.</p>
+                   </div>
                 ) : slides.map(slide => (
                    <div key={slide.id} className="border border-cream-dark rounded-xl p-4 flex flex-col md:flex-row gap-6 items-start hover:bg-cream-warm transition-colors group relative">
-                      <img src={slide.image_url} alt="" className="w-full md:w-48 h-32 object-cover rounded-lg bg-cream" />
+                      <div className="relative shrink-0">
+                        {slide.media_type === 'video' ? (
+                          <div className="relative w-full md:w-48 h-32 rounded-lg overflow-hidden bg-black shadow-sm flex items-center justify-center">
+                             <video src={slide.video_url} className="absolute inset-0 w-full h-full object-cover opacity-60" muted loop />
+                             <Video className="relative z-10 text-white" size={32} />
+                          </div>
+                        ) : (
+                          slide.image_url ? (
+                            <img src={slide.image_url} alt="" className="w-full md:w-48 h-32 object-cover rounded-lg bg-cream shadow-sm" />
+                          ) : (
+                            <div className="w-full md:w-48 h-32 rounded-lg bg-cream flex items-center justify-center text-text-muted">No Image</div>
+                          )
+                        )}
+                      </div>
                       <div className="flex-1 flex flex-col gap-2">
                         <div className="flex items-center gap-3">
-                          <span className="font-mono text-[0.6rem] uppercase tracking-widest text-text-muted bg-cream px-2 py-1 rounded">Slide {slide.sort_order}</span>
-                          <span className={`text-xs px-2 py-0.5 rounded font-medium ${slide.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>{slide.is_active ? 'Active' : 'Draft'}</span>
+                          <span className="font-mono text-[0.6rem] uppercase tracking-[0.2em] text-text-muted bg-white border border-cream-dark px-2.5 py-1 rounded">ORDER {slide.sort_order}</span>
+                          <span className={`text-[0.6rem] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider ${slide.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>{slide.is_active ? 'Active' : 'Draft'}</span>
+                          {slide.media_type === 'video' && <span className="bg-forest/10 text-forest text-[0.6rem] px-2 py-0.5 rounded font-bold uppercase tracking-wider">Video Slide</span>}
                         </div>
-                        <h3 className="font-display text-xl leading-tight" dangerouslySetInnerHTML={{__html: slide.title}} />
-                        <p className="text-text-muted text-sm line-clamp-2">{slide.subtitle}</p>
+                        <h3 className="font-display text-xl leading-tight text-text-dark" dangerouslySetInnerHTML={{__html: slide.title}} />
+                        <p className="text-text-muted text-sm line-clamp-2 font-light">{slide.subtitle}</p>
                       </div>
-                      <div className="flex flex-col gap-2 self-start md:self-stretch justify-center pl-4 md:border-l border-cream-dark">
-                         <button className="text-xs font-medium text-forest hover:underline p-1">Edit</button>
-                         <button onClick={() => handleDelete(slide.id)} className="text-xs font-medium text-terracotta hover:underline p-1">Delete</button>
+                      <div className="flex flex-row md:flex-col gap-3 self-start md:self-stretch justify-center pl-4 md:border-l border-cream-dark/50">
+                         <button onClick={() => setEditingSlide(slide)} className="text-[0.7rem] font-bold uppercase tracking-widest text-forest hover:opacity-70 transition-opacity p-1 flex items-center gap-1.5"><Edit2 size={12} /> Edit</button>
+                         <button onClick={() => handleDelete(slide.id)} className="text-[0.7rem] font-bold uppercase tracking-widest text-terracotta hover:opacity-70 transition-opacity p-1 flex items-center gap-1.5"><Trash2 size={12} /> Delete</button>
                       </div>
                    </div>
                 ))}
@@ -79,20 +228,20 @@ export default function HomepageCMS() {
           )}
 
           {activeTab === 'content' && (
-             <div className="flex flex-col gap-6 max-w-3xl">
-                <div>
-                   <label className="text-sm font-medium mb-2 block">CTA Headline</label>
-                   <input type="text" className="w-full p-3 bg-cream border border-cream-dark rounded-lg focus:outline-forest" defaultValue="Ready to trade with **confidence**?" />
+             <div className="flex flex-col gap-8 max-w-3xl">
+                <div className="space-y-2">
+                   <label className="text-[0.65rem] font-mono uppercase tracking-widest text-text-muted ml-1">CTA Headline</label>
+                   <input type="text" className="w-full p-4 bg-cream/50 border border-cream-dark rounded-2xl focus:outline-forest transition-all" defaultValue="Ready to trade with **confidence**?" />
                 </div>
-                <div>
-                   <label className="text-sm font-medium mb-2 block">About Purpose Text</label>
-                   <textarea rows={4} className="w-full p-3 bg-cream border border-cream-dark rounded-lg focus:outline-forest" defaultValue="Born in the UAE — a global crossroads of trade — HARVEN exists to connect the world's finest producers with markets that demand quality, reliability, and scale." />
+                <div className="space-y-2">
+                   <label className="text-[0.65rem] font-mono uppercase tracking-widest text-text-muted ml-1">About Purpose Text</label>
+                   <textarea rows={4} className="w-full p-4 bg-cream/50 border border-cream-dark rounded-2xl focus:outline-forest transition-all" defaultValue="Born in the UAE — a global crossroads of trade — HARVEN exists to connect the world's finest producers with markets that demand quality, reliability, and scale." />
                 </div>
-                <div>
-                   <label className="text-sm font-medium mb-2 block">Vision Quote</label>
-                   <textarea rows={3} className="w-full p-3 bg-cream border border-cream-dark rounded-lg focus:outline-forest" defaultValue='"A supply chain is only as strong as its **integrity**. At Harven, we guarantee ours."' />
+                <div className="space-y-2">
+                   <label className="text-[0.65rem] font-mono uppercase tracking-widest text-text-muted ml-1">Vision Quote</label>
+                   <textarea rows={3} className="w-full p-4 bg-cream/50 border border-cream-dark rounded-2xl focus:outline-forest transition-all" defaultValue='"A supply chain is only as strong as its **integrity**. At Harven, we guarantee ours."' />
                 </div>
-                <button className="bg-forest text-white px-6 py-3 rounded-lg text-sm font-medium w-full sm:w-auto self-start mt-4">Save Content Blocks</button>
+                <button className="bg-forest text-white px-8 py-4 rounded-2xl text-sm font-medium w-full sm:w-auto self-start mt-4 shadow-xl shadow-forest/10 hover:bg-forest-deep transition-all">Save Changes</button>
              </div>
           )}
         </div>

@@ -13,6 +13,8 @@ interface Slide {
   cta_text: string
   cta_link: string
   image_url: string
+  video_url?: string
+  media_type?: 'image' | 'video'
   badge_text: string
 }
 
@@ -24,7 +26,8 @@ const DEFAULT_SLIDES: Slide[] = [
     badge_text: "UAE-Based · Global Trading",
     cta_text: "Explore Our Range",
     cta_link: "/products",
-    image_url: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920&q=80"
+    image_url: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920&q=80",
+    media_type: 'image'
   },
   {
     id: '2',
@@ -33,7 +36,8 @@ const DEFAULT_SLIDES: Slide[] = [
     badge_text: "Discover Quality",
     cta_text: "View Products",
     cta_link: "/products",
-    image_url: "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=1920&q=80"
+    image_url: "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=1920&q=80",
+    media_type: 'image'
   }
 ];
 
@@ -63,7 +67,7 @@ export function HeroSlider() {
     if (slides.length <= 1 || isPaused) return
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % slides.length)
-    }, 5000)
+    }, 8000) // Slightly longer for video slides
     return () => clearInterval(timer)
   }, [slides, isPaused])
 
@@ -91,16 +95,30 @@ export function HeroSlider() {
           transition={{ duration: 1.6, ease: [0.4, 0, 0.2, 1] }}
           className="absolute inset-0 z-0"
         >
-          <motion.img 
-            src={currentSlide.image_url} 
-            alt="Hero background"
-            fetchPriority="high"
-            loading="eager"
-            className="w-full h-full object-cover brightness-[0.5] saturate-[0.85]"
-            initial={{ scale: 1.06 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 10, ease: "easeOut" }}
-          />
+          {currentSlide.media_type === 'video' && currentSlide.video_url ? (
+            <div className="relative w-full h-full">
+              <video
+                src={currentSlide.video_url}
+                autoPlay
+                muted
+                loop
+                playsInline
+                poster={currentSlide.image_url}
+                className="w-full h-full object-cover brightness-[0.4] saturate-[0.85]"
+              />
+            </div>
+          ) : (
+            <motion.img 
+              src={currentSlide.image_url} 
+              alt="Hero background"
+              fetchPriority="high"
+              loading="eager"
+              className="w-full h-full object-cover brightness-[0.5] saturate-[0.85]"
+              initial={{ scale: 1.06 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 10, ease: "easeOut" }}
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-b from-[#0F2A17]/60 via-[#0F2A17]/15 to-[#0F2A17]/55" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0F2A17]/50 to-transparent w-1/2" />
         </motion.div>
