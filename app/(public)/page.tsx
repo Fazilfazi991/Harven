@@ -6,17 +6,22 @@ import { Badge } from '@/components/ui/Badge'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function HomePage() {
-  const supabase = await createClient()
+  let stockItems = null;
   
-  // Fetch only active products for the stock board
-  const { data: stockItems } = await supabase
-    .from('products')
-    .select('*')
-    .eq('is_active', true)
-    .order('sort_order', { ascending: true })
-    .limit(3)
-
-  // Use fallback data if DB is empty
+  try {
+    const supabase = await createClient()
+    const { data } = await supabase
+      .from('products')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true })
+      .limit(3)
+    stockItems = data
+  } catch (err) {
+    console.error('Home Page Data Fetch Error:', err)
+  }
+  
+  // Use fallback data if DB fails or is empty
   const displayStock = (stockItems && stockItems.length > 0) ? stockItems : [
     { name: 'Black Pepper', category: 'Spices', description: 'Origin: Vietnam | Grade: 500g/l FAQ', image_url: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=800&q=80', is_active: true },
     { name: 'White Rice', category: 'Grains', description: 'Origin: Thailand | Grade: 5% Broken', image_url: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&q=80', is_active: true },
