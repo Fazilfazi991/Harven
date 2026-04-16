@@ -25,18 +25,17 @@ export default function HomepageCMS() {
       const { data, error: fetchErr } = await supabase.from('slides').select('*').order('sort_order')
       
       if (fetchErr) {
-        console.error("Slides Fetch Error:", fetchErr)
-        if (process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('mock')) {
-           setError("Connected to Mock Database. Please configure Supabase environment variables in your .env file to see real slides.")
-        } else {
-           setError("Failed to fetch slides. Check your database connection and 'slides' table.")
-        }
+        console.error("Slides Fetch Error details:", fetchErr)
+        // Show the exact error message to the user for easier debugging
+        setError(`${fetchErr.message} (${fetchErr.code || 'No code'}). If this is a 401/403, check your RLS policies in Supabase.`);
       }
 
-      if (data) setSlides(data)
-    } catch (e) {
+      if (data) {
+        setSlides(data)
+      }
+    } catch (e: any) {
       console.log(e)
-      setError("An unexpected error occurred while connecting to the database.")
+      setError(`Unexpected error: ${e.message || 'Unknown error'}`);
     } finally {
       setLoading(false)
     }
@@ -68,9 +67,9 @@ export default function HomepageCMS() {
       }
       setEditingSlide(null)
       fetchSlides()
-    } catch (err) {
+    } catch (err: any) {
       console.error(err)
-      alert("Error saving slide")
+      alert("Error saving slide: " + (err.message || 'Unknown error'))
     }
   }
 
@@ -90,11 +89,19 @@ export default function HomepageCMS() {
       </div>
 
       {error && (
-        <div className="mb-8 p-4 bg-terracotta/10 border border-terracotta/20 rounded-xl text-terracotta flex items-start gap-3">
-          <Terminal size={20} className="shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm font-bold mb-1">Database Connection Warning</p>
-            <p className="text-xs font-medium leading-relaxed">{error}</p>
+        <div className="mb-8 p-6 bg-terracotta/5 border border-terracotta/20 rounded-[24px] text-terracotta flex items-start gap-4 shadow-sm">
+          <Terminal size={24} className="shrink-0 mt-1" />
+          <div className="flex-1">
+            <p className="text-sm font-bold mb-2 uppercase tracking-widest">Database Sync Error</p>
+            <p className="text-sm font-light leading-relaxed mb-4">{error}</p>
+            <div className="flex gap-4">
+               <button onClick={fetchSlides} className="flex items-center gap-2 px-4 py-2 bg-terracotta/10 rounded-lg text-xs font-bold hover:bg-terracotta/20 transition-colors">
+                 <RefreshCw size={14} /> Try Again
+               </button>
+               <a href="https://supabase.com/dashboard" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 border border-terracotta/20 rounded-lg text-xs font-bold hover:bg-terracotta/5 transition-colors">
+                 Open Supabase Dashboard
+               </a>
+            </div>
           </div>
         </div>
       )}
@@ -198,7 +205,7 @@ export default function HomepageCMS() {
                       <div className="relative shrink-0">
                         {slide.media_type === 'video' ? (
                           <div className="relative w-full md:w-48 h-32 rounded-lg overflow-hidden bg-black shadow-sm flex items-center justify-center">
-                             <video src={slide.video_url} className="absolute inset-0 w-full h-full object-cover opacity-60" muted loop />
+                             {slide.video_url && <video src={slide.video_url} className="absolute inset-0 w-full h-full object-cover opacity-60" muted loop />}
                              <Video className="relative z-10 text-white" size={32} />
                           </div>
                         ) : (

@@ -11,9 +11,20 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse;
   }
 
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  console.log("DEBUG: Supabase URL exists:", !!supabaseUrl)
+  console.log("DEBUG: Supabase Key exists:", !!supabaseKey)
+
+  if (!supabaseUrl || !supabaseKey) {
+    console.error("Supabase environment variables are missing! Middleware could not initialize.")
+    return supabaseResponse
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseKey,
     {
       cookies: {
         getAll() {
