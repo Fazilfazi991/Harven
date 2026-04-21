@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, FileText, Image as ImageIcon, Box, Bot, Inbox, Settings, Menu, X, LogOut, Award } from 'lucide-react'
+import { LayoutDashboard, FileText, Image as ImageIcon, Box, Bot, Inbox, Settings, Menu, X, LogOut, Award, Monitor } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -27,9 +27,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const links = [
     { name: 'Dashboard', href: '/admin', icon: <LayoutDashboard size={20} /> },
-    { name: 'Homepage CMS', href: '/admin/homepage', icon: <ImageIcon size={20} /> },
+    { name: 'Homepage CMS', href: '/admin/homepage', icon: <Monitor size={20} /> },
     { name: 'Products', href: '/admin/products', icon: <Box size={20} /> },
     { name: 'Signature Brands', href: '/admin/brands', icon: <Award size={20} /> },
+    { name: 'Media Library', href: '/admin/media', icon: <ImageIcon size={20} /> },
     { name: 'Landing Pages', href: '/admin/landing-pages', icon: <FileText size={20} /> },
     { name: 'AI Chatbot', href: '/admin/chatbot', icon: <Bot size={20} /> },
     { name: 'Inquiries', href: '/admin/inquiries', icon: <Inbox size={20} /> },
