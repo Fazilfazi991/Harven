@@ -35,7 +35,7 @@ export function ScrollToTop() {
           whileTap={{ scale: 0.9 }}
           onClick={scrollToTop}
           aria-label="Scroll to top"
-          className="fixed bottom-[190px] right-6 z-[997] group flex flex-col items-center justify-center w-12 h-12 rounded-full bg-white border border-cream-dark shadow-[0_8px_30px_rgba(45,90,61,0.12)] hover:bg-forest hover:border-forest hover:shadow-[0_12px_40px_rgba(45,90,61,0.25)] transition-all duration-300"
+          className="fixed bottom-[190px] right-6 z-[997] group flex items-center justify-center w-14 h-14 rounded-full bg-white border border-cream-dark shadow-[0_8px_30px_rgba(45,90,61,0.12)] hover:bg-forest hover:border-forest hover:shadow-[0_12px_40px_rgba(45,90,61,0.25)] transition-all duration-300"
         >
           {/* Subtle pulse ring */}
           <span className="absolute inset-0 rounded-full bg-forest/10 opacity-0 group-hover:opacity-100 scale-110 transition-all duration-300" />

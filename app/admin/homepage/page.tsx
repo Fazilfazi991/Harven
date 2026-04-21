@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Terminal, AlertCircle, RefreshCw, Plus, Image as ImageIcon, Video, Trash2, Edit2, Play, Pause, Loader2, UploadCloud } from 'lucide-react'
+import { Terminal, AlertCircle, RefreshCw, Plus, Image as ImageIcon, Video, Trash2, Edit2, Loader2, UploadCloud } from 'lucide-react'
+import { ImagePicker } from '@/components/admin/ImagePicker'
 
 export default function HomepageCMS() {
   const [activeTab, setActiveTab] = useState('slider')
@@ -12,7 +13,6 @@ export default function HomepageCMS() {
   
   // Slide Editing State
   const [editingSlide, setEditingSlide] = useState<any>(null)
-  const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadingVideo, setUploadingVideo] = useState(false)
 
   useEffect(() => {
@@ -28,7 +28,6 @@ export default function HomepageCMS() {
       
       if (fetchErr) {
         console.error("Slides Fetch Error details:", fetchErr)
-        // Show the exact error message to the user for easier debugging
         setError(`${fetchErr.message} (${fetchErr.code || 'No code'}). If this is a 401/403, check your RLS policies in Supabase.`);
       }
 
@@ -75,11 +74,9 @@ export default function HomepageCMS() {
     }
   }
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: 'image_url' | 'video_url') => {
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return
-    const isVideo = fieldName === 'video_url'
-    if (isVideo) setUploadingVideo(true)
-    else setUploadingImage(true)
+    setUploadingVideo(true)
     
     try {
       const file = e.target.files[0]
@@ -89,13 +86,12 @@ export default function HomepageCMS() {
       const { error } = await supabase.storage.from('harven_assets').upload(fileName, file)
       if (error) throw error
       const { data } = supabase.storage.from('harven_assets').getPublicUrl(fileName)
-      setEditingSlide({...editingSlide, [fieldName]: data.publicUrl})
+      setEditingSlide({...editingSlide, video_url: data.publicUrl})
     } catch (err) {
       console.error(err)
-      alert("Failed to upload file. Ensure 'harven_assets' bucket exists and allows uploads.")
+      alert("Failed to upload video. Ensure 'harven_assets' bucket exists and allows uploads.")
     } finally {
-      if (isVideo) setUploadingVideo(false)
-      else setUploadingImage(false)
+      setUploadingVideo(false)
     }
   }
 
@@ -134,7 +130,8 @@ export default function HomepageCMS() {
 
       {editingSlide && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <form onSubmit={handleSaveSlide} className="bg-white rounded-[32px] border border-black/5 shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8 lg:p-12">
+          <div className="absolute inset-0" onClick={() => setEditingSlide(null)} />
+          <form onSubmit={handleSaveSlide} className="relative bg-white rounded-[32px] border border-black/5 shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8 lg:p-12 animate-in fade-in zoom-in duration-300">
             <h2 className="font-display text-2xl font-semibold mb-8">{editingSlide.id ? 'Edit Slide' : 'Add New Slide'}</h2>
             
             <div className="flex flex-col gap-6">
@@ -169,30 +166,16 @@ export default function HomepageCMS() {
                    <textarea rows={2} value={editingSlide.subtitle || ''} onChange={e => setEditingSlide({...editingSlide, subtitle: e.target.value})} className="w-full p-4 bg-cream/50 border border-cream-dark rounded-xl focus:outline-forest" />
                 </div>
                 
-                <div className="space-y-1.5">
-                   <label className="text-[0.65rem] font-mono uppercase tracking-widest text-text-muted ml-1">Poster Image URL</label>
-                   <div className="flex gap-4 items-start">
-                     <div className="flex-1">
-                       <input type="text" required value={editingSlide.image_url || ''} onChange={e => setEditingSlide({...editingSlide, image_url: e.target.value})} className="w-full p-4 bg-cream/50 border border-cream-dark rounded-xl focus:outline-forest" placeholder="https://..." />
-                     </div>
-                     <div className="relative shrink-0">
-                       <input 
-                         type="file" 
-                         accept="image/*"
-                         onChange={(e) => handleFileUpload(e, 'image_url')}
-                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                         disabled={uploadingImage}
-                       />
-                       <button type="button" className="px-6 py-4 bg-cream-warm border border-cream-dark rounded-xl flex items-center gap-2 text-sm font-medium hover:bg-cream-dark transition-colors h-[54px]">
-                         {uploadingImage ? <Loader2 className="animate-spin" size={18} /> : <UploadCloud size={18} />}
-                         {uploadingImage ? 'Uploading...' : 'Upload'}
-                       </button>
-                     </div>
-                   </div>
+                <div className="sm:col-span-2">
+                  <ImagePicker 
+                    label="Poster Image URL"
+                    value={editingSlide.image_url || ''}
+                    onChange={(url) => setEditingSlide({...editingSlide, image_url: url})}
+                  />
                 </div>
 
                 {editingSlide.media_type === 'video' && (
-                  <div className="space-y-1.5">
+                  <div className="sm:col-span-2 space-y-1.5">
                     <label className="text-[0.65rem] font-mono uppercase tracking-widest text-text-muted ml-1">Video File URL/Path</label>
                     <div className="flex gap-4 items-start">
                       <div className="flex-1">
@@ -202,7 +185,7 @@ export default function HomepageCMS() {
                         <input 
                           type="file" 
                           accept="video/*"
-                          onChange={(e) => handleFileUpload(e, 'video_url')}
+                          onChange={handleVideoUpload}
                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                           disabled={uploadingVideo}
                         />

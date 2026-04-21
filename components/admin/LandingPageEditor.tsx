@@ -6,6 +6,7 @@ import { Plus, GripVertical, Trash2, X, Text, Table, AlignLeft, List, Image as I
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { ImagePicker } from './ImagePicker'
 
 // Sorteable Row Item Component
 function SortableBlock({ id, block, onRemove, onChange }: any) {
@@ -20,7 +21,7 @@ function SortableBlock({ id, block, onRemove, onChange }: any) {
       <div className="flex-1 flex flex-col gap-2">
         <div className="flex justify-between items-center mb-2">
            <div className="uppercase tracking-wider font-mono text-[0.6rem] text-text-muted bg-cream px-2 py-1 rounded inline-block">{block.type} Block</div>
-           <button onClick={() => onRemove(id)} className="text-red-500/50 hover:text-red-600"><Trash2 size={16} /></button>
+           <button type="button" onClick={() => onRemove(id)} className="text-red-500/50 hover:text-red-600"><Trash2 size={16} /></button>
         </div>
         {block.type === 'text' && (
           <textarea 
@@ -43,11 +44,9 @@ function SortableBlock({ id, block, onRemove, onChange }: any) {
            <div className="text-xs text-text-muted">Bullet list items array builder placeholder...</div>
         )}
         {block.type === 'image' && (
-           <input 
+           <ImagePicker 
              value={block.url || ''} 
-             onChange={e => onChange(id, { ...block, url: e.target.value })} 
-             placeholder="https://... (Image URL)" 
-             className="w-full p-3 border border-cream-dark rounded-lg bg-cream font-mono text-xs focus:outline-forest" 
+             onChange={url => onChange(id, { ...block, url })} 
            />
         )}
       </div>
@@ -58,6 +57,7 @@ function SortableBlock({ id, block, onRemove, onChange }: any) {
 export function LandingPageEditor({ initialData = null, onSave }: { initialData?: any, onSave?: (data: any) => void }) {
   const [activeTab, setActiveTab] = useState('basic')
   const [blocks, setBlocks] = useState<any[]>(initialData?.content_blocks || [])
+  const [heroImageUrl, setHeroImageUrl] = useState(initialData?.hero_image_url || '')
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -70,7 +70,7 @@ export function LandingPageEditor({ initialData = null, onSave }: { initialData?
       hero_headline: formData.get('hero_headline') as string,
       hero_subtext: formData.get('hero_subtext') as string,
       hero_badge: formData.get('hero_badge') as string,
-      hero_image_url: formData.get('hero_image_url') as string,
+      hero_image_url: heroImageUrl,
       show_chatbot: formData.get('show_chatbot') === 'on',
       show_inquiry_form: formData.get('show_inquiry_form') === 'on',
       is_published: formData.get('is_published') === 'on',
@@ -106,6 +106,7 @@ export function LandingPageEditor({ initialData = null, onSave }: { initialData?
         {['basic', 'hero', 'content', 'settings'].map(tab => (
           <button 
             key={tab} 
+            type="button"
             onClick={() => setActiveTab(tab)}
             className={`text-left px-4 py-3 rounded-xl text-sm font-medium transition-colors capitalize ${activeTab === tab ? 'bg-forest text-white' : 'text-text-dark hover:bg-cream-dark'}`}
           >
@@ -147,13 +148,12 @@ export function LandingPageEditor({ initialData = null, onSave }: { initialData?
                 Badge Text
                 <input name="hero_badge" type="text" className="p-3 border rounded-xl" defaultValue={initialData?.hero_badge} />
              </label>
-             <label className="flex flex-col gap-2 text-sm text-text-muted">
-                Background Image URL
-                <input name="hero_image_url" type="text" className="p-3 border rounded-xl font-mono" defaultValue={initialData?.hero_image_url} placeholder="https://" />
-             </label>
-             <div className="bg-cream-warm p-4 rounded-xl border border-dashed flex justify-center items-center h-32 text-text-muted text-sm mt-2">
-                Click to upload Background Image
-             </div>
+             
+             <ImagePicker 
+                label="Hero Background Image"
+                value={heroImageUrl}
+                onChange={setHeroImageUrl}
+             />
         </div>
 
         <div className={`flex flex-col gap-6 max-w-2xl ${activeTab === 'content' ? 'block' : 'hidden'}`}>

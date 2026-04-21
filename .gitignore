@@ -51,3 +51,11 @@ next-env.d.ts
 !/public/brands/
 !/public/**/*.png
 !/public/**/*.svg
+
+# Deployment folder (contains large video files)
+/harven-deployment/
+
+# Large video formats
+*.mov
+*.avi
+*.mkv

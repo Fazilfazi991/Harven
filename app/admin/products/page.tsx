@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { X, Plus, Edit2, Trash2, Loader2, Save, UploadCloud, Settings } from 'lucide-react'
+import { X, Plus, Edit2, Trash2, Loader2, Save, Settings } from 'lucide-react'
 import { CategoryManager } from '@/components/admin/CategoryManager'
+import { ImagePicker } from '@/components/admin/ImagePicker'
 
 export default function ProductsCMS() {
   const [products, setProducts] = useState<any[]>([])
@@ -13,7 +14,6 @@ export default function ProductsCMS() {
   const [isCatManagerOpen, setIsCatManagerOpen] = useState(false)
   const [currentProduct, setCurrentProduct] = useState<any>(null)
   const [saving, setSaving] = useState(false)
-  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     fetchProducts()
@@ -83,26 +83,6 @@ export default function ProductsCMS() {
       alert("Failed to save product.")
     } finally {
       setSaving(false)
-    }
-  }
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return
-    setUploading(true)
-    try {
-      const file = e.target.files[0]
-      const supabase = createClient()
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${Math.random()}-${Date.now()}.${fileExt}`
-      const { error } = await supabase.storage.from('harven_assets').upload(fileName, file)
-      if (error) throw error
-      const { data } = supabase.storage.from('harven_assets').getPublicUrl(fileName)
-      setCurrentProduct({...currentProduct, image_url: data.publicUrl})
-    } catch (err) {
-      console.error(err)
-      alert("Failed to upload image. Ensure 'harven_assets' bucket exists and allows uploads.")
-    } finally {
-      setUploading(false)
     }
   }
 
@@ -266,32 +246,11 @@ export default function ProductsCMS() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Image URL</label>
-                <div className="flex gap-4 items-start">
-                  <div className="flex-1">
-                    <input 
-                      value={currentProduct.image_url}
-                      onChange={(e) => setCurrentProduct({...currentProduct, image_url: e.target.value})}
-                      placeholder="https://..."
-                      className="w-full p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none text-[0.9rem]"
-                    />
-                  </div>
-                  <div className="relative">
-                    <input 
-                      type="file" 
-                      accept="image/*"
-                      onChange={handleFileUpload}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                      disabled={uploading}
-                    />
-                    <button type="button" className="px-6 py-4 bg-cream-warm border border-cream-dark rounded-xl flex items-center gap-2 text-sm font-medium hover:bg-cream-dark transition-colors h-[54px]">
-                      {uploading ? <Loader2 className="animate-spin" size={18} /> : <UploadCloud size={18} />}
-                      {uploading ? 'Uploading...' : 'Upload'}
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <ImagePicker 
+                label="Product Image"
+                value={currentProduct.image_url}
+                onChange={(url) => setCurrentProduct({...currentProduct, image_url: url})}
+              />
 
               <div>
                 <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Description</label>
