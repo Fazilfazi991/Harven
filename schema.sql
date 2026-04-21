@@ -83,3 +83,43 @@ create table chatbot_settings (
   escalation_email text,
   updated_at timestamptz default now()
 );
+
+-- Signature Brands (CMS-managed)
+create table signature_brands (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  tagline text,
+  description text,
+  origin text,
+  packaging text,
+  certification text,
+  moq text,
+  grade text,
+  image_url text,
+  accent text default 'forest', -- 'amber' | 'emerald' | 'forest' | 'terracotta'
+  badge text,
+  cta_text text default 'Inquire Now',
+  is_active boolean default true,
+  sort_order integer default 0,
+  brand_type text default 'KeraZone', -- 'KeraZone' | 'Fiori'
+  created_at timestamptz default now()
+);
+
+-- Storage bucket setup (Optional/Reference)
+-- insert into storage.buckets (id, name, public) values ('harven_assets', 'harven_assets', true);
+-- create policy "Public Access" on storage.objects for select using ( bucket_id = 'harven_assets' );
+-- create policy "Authenticated Uploads" on storage.objects for insert to authenticated with check ( bucket_id = 'harven_assets' );
+
+-- Product Categories
+create table product_categories (
+  id uuid primary key default gen_random_uuid(),
+  name text unique not null,
+  created_at timestamptz default now()
+);
+
+-- Brand Types
+create table brand_types (
+  id uuid primary key default gen_random_uuid(),
+  name text unique not null,
+  created_at timestamptz default now()
+);

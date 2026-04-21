@@ -44,7 +44,6 @@ const DEFAULT_SLIDES: Slide[] = [
 export function HeroSlider() {
   const [slides, setSlides] = useState<Slide[]>(DEFAULT_SLIDES)
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [isPaused, setIsPaused] = useState(false)
 
   // Fetch or fallback dummy data
   useEffect(() => {
@@ -64,12 +63,12 @@ export function HeroSlider() {
   }, [])
 
   useEffect(() => {
-    if (slides.length <= 1 || isPaused) return
+    if (slides.length <= 1) return
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % slides.length)
-    }, 8000) // Slightly longer for video slides
+    }, 8000) // 8 second cycle
     return () => clearInterval(timer)
-  }, [slides, isPaused])
+  }, [slides])
 
   if (slides.length === 0) return <div className="h-screen bg-forest-darker/90" />
 
@@ -81,11 +80,7 @@ export function HeroSlider() {
   }
 
   return (
-    <section 
-      className="relative min-h-screen flex items-center overflow-hidden bg-forest-darker"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-    >
+    <section className="relative min-h-[100svh] flex items-center overflow-hidden bg-forest-darker">
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={currentIndex}
@@ -95,22 +90,33 @@ export function HeroSlider() {
           transition={{ duration: 1.6, ease: [0.4, 0, 0.2, 1] }}
           className="absolute inset-0 z-0"
         >
-          <motion.img 
-            src={currentSlide.image_url} 
-            alt="Hero background"
-            fetchPriority="high"
-            loading="eager"
-            className="w-full h-full object-cover brightness-[0.5] saturate-[0.85]"
-            initial={{ scale: 1.06 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 10, ease: "easeOut" }}
-          />
+          {currentSlide.media_type === 'video' ? (
+             <video 
+               src={currentSlide.video_url || ''} 
+               autoPlay 
+               loop 
+               muted 
+               playsInline 
+               className="w-full h-full object-cover brightness-[0.5] saturate-[0.85]"
+             />
+          ) : (
+            <motion.img 
+              src={currentSlide.image_url || ''} 
+              alt="Hero background"
+              fetchPriority="high"
+              loading="eager"
+              className="w-full h-full object-cover brightness-[0.5] saturate-[0.85]"
+              initial={{ scale: 1.06 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 10, ease: "easeOut" }}
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-b from-[#0F2A17]/60 via-[#0F2A17]/15 to-[#0F2A17]/55" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#0F2A17]/50 to-transparent w-1/2" />
         </motion.div>
       </AnimatePresence>
 
-      <div className="relative z-10 max-w-[700px] px-8 lg:px-16 w-full">
+      <div className="relative z-10 max-w-[700px] px-8 lg:px-16 w-full pt-28 lg:pt-32 pb-36 lg:pb-40">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={`content-${currentIndex}`}
@@ -152,7 +158,7 @@ export function HeroSlider() {
               variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8 } } }}
               className="flex gap-4 flex-wrap"
             >
-              <Link href={currentSlide.cta_link} className="group inline-flex items-center gap-[0.6rem] bg-terracotta text-white px-[2.4rem] py-[1rem] rounded-full font-medium text-[0.88rem] tracking-[0.02em] transition-all duration-300 shadow-[0_4px_20px_rgba(196,112,75,0.25)] hover:bg-[#b5603e] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(196,112,75,0.35)]">
+              <Link href={currentSlide.cta_link || "#"} className="group inline-flex items-center gap-[0.6rem] bg-terracotta text-white px-[2.4rem] py-[1rem] rounded-full font-medium text-[0.88rem] tracking-[0.02em] transition-all duration-300 shadow-[0_4px_20px_rgba(196,112,75,0.25)] hover:bg-[#b5603e] hover:-translate-y-[2px] hover:shadow-[0_8px_30px_rgba(196,112,75,0.35)]">
                 {currentSlide.cta_text || "Explore"} <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
             </motion.div>

@@ -60,3 +60,71 @@ VALUES
 INSERT INTO products (name, category, image_url, description, tags, sort_order)
 VALUES
 ('Frozen Meats', 'Frozen', 'https://images.unsplash.com/photo-1603048297172-c92544798d5e?w=400&q=80', 'Carefully handled frozen meats and food items meeting strict controls.', ARRAY['Regulated', 'Cold Chain'], 13);
+
+-- SIGNATURE BRANDS
+INSERT INTO signature_brands (name, tagline, description, origin, packaging, certification, moq, grade, image_url, accent, badge, cta_text, brand_type, sort_order)
+VALUES
+(
+  'Black Stingless Bee Honey', 
+  'Nature''s Rare Sweetness', 
+  'Sourced from the untouched forests of Kerala, this rare honey is produced by stingless bees (Tetragonula iridipennis). Rich in antioxidants and enzymes, with a unique tangy-sweet profile.', 
+  'Kerala, India', 
+  '250g Glass Jar | 5kg Bulk Pail', 
+  'Organic, FSSAI, Lab-Tested', 
+  '50 units (retail) | 500kg (bulk)', 
+  NULL, 
+  '/brands/kerazone/honey.jpg', 
+  'amber', 
+  'Rare', 
+  'Request Spec Sheet', 
+  'KeraZone', 
+  1
+),
+(
+  'Kerala Green Cardamom', 
+  'The Queen of Spices', 
+  'Premium Alleppey Green Cardamom, hand-picked at peak maturity. Bold aroma, vibrant green pods, and high volatile oil content—perfect for gourmet food, beverages, and pharma applications.', 
+  'Idukki, Kerala, India', 
+  '1kg Vacuum Pack | 25kg Carton', 
+  'ISO 22000, HACCP, Spice Board Approved', 
+  '100kg', 
+  '8mm+ Bold Pods', 
+  '/brands/kerazone/cardamom.jpg', 
+  'emerald', 
+  'Export Grade', 
+  'Inquire for Bulk Pricing', 
+  'KeraZone', 
+  2
+),
+(
+  'Virgin Coconut Oil (1L)', 
+  'Pure Goodness in Every Drop.', 
+  'Our extra virgin coconut oil is cold-pressed from the finest Kerala coconuts. Unrefined, unbleached, and non-deodorized to maintain maximum nutritional value.', 
+  'Kerala, India', 
+  '1L Glass Bottle | 20L Bulk Drum', 
+  'HACCP, GMP Certified', 
+  '200 Litres', 
+  NULL, 
+  '/brands/kerazone/oil.jpg', 
+  'forest', 
+  NULL, 
+  'Get Quote', 
+  'KeraZone', 
+  3
+),
+(
+  'Mangozy', 
+  'Pure Fruit Solutions', 
+  '100% Premium Alphonso Mango Pulp. Unsweetened. Ideal for manufacturing & catering.', 
+  'India', 
+  '3.1 KG Bulk Format Can', 
+  'Export Quality', 
+  '1 Pallet', 
+  '16° - 18° Brix Min', 
+  '/brands/fiori/mangozy.jpg', 
+  'terracotta', 
+  'Bestseller', 
+  'Partner with Fióri', 
+  'Fiori', 
+  4
+);

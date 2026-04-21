@@ -41,9 +41,13 @@ yarn-error.log*
 next-env.d.ts
 
 # Large Assets
-/public/videos/
+/public/videos/*
+!/public/videos/*.mp4
 /Videos/
 *.zip
 *.png
 *.svg
 !/public/images/
+!/public/brands/
+!/public/**/*.png
+!/public/**/*.svg

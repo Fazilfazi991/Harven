@@ -17,11 +17,6 @@ export default function AdminLogin() {
     setLoading(true)
     setError('')
     
-    // Check dummy creds if not hooked up to a real supabase db
-    if (email === 'harvenllc@gmail.com' && password === 'harven2024') {
-      window.location.href = '/admin'
-      return
-    }
 
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithPassword({

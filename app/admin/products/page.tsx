@@ -2,17 +2,22 @@
 
 import React, { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { X, Plus, Edit2, Trash2, Loader2, Save } from 'lucide-react'
+import { X, Plus, Edit2, Trash2, Loader2, Save, UploadCloud, Settings } from 'lucide-react'
+import { CategoryManager } from '@/components/admin/CategoryManager'
 
 export default function ProductsCMS() {
   const [products, setProducts] = useState<any[]>([])
+  const [categories, setCategories] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isCatManagerOpen, setIsCatManagerOpen] = useState(false)
   const [currentProduct, setCurrentProduct] = useState<any>(null)
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     fetchProducts()
+    fetchCategories()
   }, [])
 
   const fetchProducts = async () => {
@@ -28,10 +33,20 @@ export default function ProductsCMS() {
     }
   }
 
+  const fetchCategories = async () => {
+    try {
+      const supabase = createClient()
+      const { data } = await supabase.from('product_categories').select('*').order('name', { ascending: true })
+      if (data) setCategories(data)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   const handleOpenModal = (product: any = null) => {
     setCurrentProduct(product || { 
       name: '', 
-      category: 'Spices', 
+      category: categories.length > 0 ? categories[0].name : 'Spices', 
       image_url: '', 
       description: '', 
       tags: [], 
@@ -71,6 +86,26 @@ export default function ProductsCMS() {
     }
   }
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return
+    setUploading(true)
+    try {
+      const file = e.target.files[0]
+      const supabase = createClient()
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Math.random()}-${Date.now()}.${fileExt}`
+      const { error } = await supabase.storage.from('harven_assets').upload(fileName, file)
+      if (error) throw error
+      const { data } = supabase.storage.from('harven_assets').getPublicUrl(fileName)
+      setCurrentProduct({...currentProduct, image_url: data.publicUrl})
+    } catch (err) {
+      console.error(err)
+      alert("Failed to upload image. Ensure 'harven_assets' bucket exists and allows uploads.")
+    } finally {
+      setUploading(false)
+    }
+  }
+
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this product?")) return
     try {
@@ -89,12 +124,20 @@ export default function ProductsCMS() {
           <h1 className="font-display text-3xl font-semibold text-text-dark">Products Manager</h1>
           <p className="text-text-muted mt-2">Manage the commodity stock and brands displayed on the website.</p>
         </div>
-        <button 
-          onClick={() => handleOpenModal()}
-          className="bg-forest text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-forest-deep transition-all shadow-lg shadow-forest/10 flex items-center gap-2"
-        >
-          <Plus size={18} /> Add New Product
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => setIsCatManagerOpen(true)}
+            className="bg-white text-text-muted px-4 py-2.5 rounded-xl text-sm font-medium border border-cream-dark hover:bg-cream transition-all flex items-center gap-2"
+          >
+            <Settings size={18} /> Categories
+          </button>
+          <button 
+            onClick={() => handleOpenModal()}
+            className="bg-forest text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-forest-deep transition-all shadow-lg shadow-forest/10 flex items-center gap-2"
+          >
+            <Plus size={18} /> Add New Product
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-[24px] border border-black/5 shadow-sm overflow-hidden">
@@ -173,6 +216,15 @@ export default function ProductsCMS() {
         </div>
       </div>
 
+      {/* CATEGORY MANAGER MODAL */}
+      <CategoryManager 
+        tableName="product_categories" 
+        label="Category" 
+        isOpen={isCatManagerOpen} 
+        onClose={() => setIsCatManagerOpen(false)}
+        onUpdate={fetchCategories}
+      />
+
       {/* ADD/EDIT MODAL */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -206,24 +258,39 @@ export default function ProductsCMS() {
                     onChange={(e) => setCurrentProduct({...currentProduct, category: e.target.value})}
                     className="w-full p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none text-[0.9rem]"
                   >
-                    <option value="Spices">Spices</option>
-                    <option value="Grains">Grains</option>
-                    <option value="Nuts & Dry Fruits">Nuts & Dry Fruits</option>
-                    <option value="Honey">Honey</option>
-                    <option value="Industrial">Industrial</option>
-                    <option value="Other">Other</option>
+                    {categories.map(cat => (
+                      <option key={cat.id} value={cat.name}>{cat.name}</option>
+                    ))}
+                    {categories.length === 0 && <option value="Other">Other</option>}
                   </select>
                 </div>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Image URL</label>
-                <input 
-                  value={currentProduct.image_url}
-                  onChange={(e) => setCurrentProduct({...currentProduct, image_url: e.target.value})}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none text-[0.9rem]"
-                />
+                <div className="flex gap-4 items-start">
+                  <div className="flex-1">
+                    <input 
+                      value={currentProduct.image_url}
+                      onChange={(e) => setCurrentProduct({...currentProduct, image_url: e.target.value})}
+                      placeholder="https://..."
+                      className="w-full p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none text-[0.9rem]"
+                    />
+                  </div>
+                  <div className="relative">
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      disabled={uploading}
+                    />
+                    <button type="button" className="px-6 py-4 bg-cream-warm border border-cream-dark rounded-xl flex items-center gap-2 text-sm font-medium hover:bg-cream-dark transition-colors h-[54px]">
+                      {uploading ? <Loader2 className="animate-spin" size={18} /> : <UploadCloud size={18} />}
+                      {uploading ? 'Uploading...' : 'Upload'}
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <div>

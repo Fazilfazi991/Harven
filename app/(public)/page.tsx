@@ -5,18 +5,23 @@ import { ArrowRight } from 'lucide-react'
 import { Badge } from '@/components/ui/Badge'
 import { createClient } from '@/lib/supabase/server'
 
+export const dynamic = 'force-dynamic'
+
 export default async function HomePage() {
   let stockItems = null;
+  let signatureBrands = null;
   
   try {
     const supabase = await createClient()
-    const { data } = await supabase
-      .from('products')
-      .select('*')
-      .eq('is_active', true)
-      .order('sort_order', { ascending: true })
-      .limit(3)
-    stockItems = data
+    
+    // Fetch both tables in parallel
+    const [productsRes, brandsRes] = await Promise.all([
+      supabase.from('products').select('*').eq('is_active', true).order('sort_order', { ascending: true }).limit(3),
+      supabase.from('signature_brands').select('*').eq('is_active', true).order('sort_order', { ascending: true }).limit(3)
+    ]);
+    
+    stockItems = productsRes.data;
+    signatureBrands = brandsRes.data;
   } catch (err) {
     console.error('Home Page Data Fetch Error:', err)
   }
@@ -33,14 +38,14 @@ export default async function HomePage() {
       <HeroSlider />
       
       {/* TRUST BAR */}
-      <div className="bg-white px-6 lg:px-16 py-10 lg:py-14 flex flex-wrap items-center justify-center gap-10 lg:gap-16 border-b border-cream-dark relative z-10 w-full">
+      <div className="bg-white px-4 sm:px-6 lg:px-16 py-8 sm:py-10 lg:py-14 flex flex-nowrap overflow-x-auto sm:flex-wrap items-center justify-start sm:justify-center gap-6 sm:gap-10 lg:gap-16 border-b border-cream-dark relative z-10 w-full no-scrollbar">
         {[
           { text: "15+ Countries", sub: "Global Sourcing", img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=100&q=60" },
           { text: "100+ Products", sub: "Premium Commodities", img: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=100&q=60" },
           { text: "B2B Trading", sub: "Bulk & Contract Supply", img: "/images/b2b-trading.png" },
           { text: "UAE Hub", sub: "Global Crossroads", img: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=100&q=60" }
         ].map((item, idx) => (
-          <div key={idx} className="flex items-center gap-3 w-[45%] md:w-auto">
+          <div key={idx} className="flex items-center gap-3 shrink-0">
             <div className="w-10 h-10 rounded-full bg-cream flex items-center justify-center overflow-hidden shrink-0">
               <img src={item.img} alt="" className="w-full h-full object-cover" />
             </div>
@@ -94,7 +99,15 @@ export default async function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
+            {(signatureBrands && signatureBrands.length > 0 ? signatureBrands.map((row: any) => ({
+                brand: row.brand_type || "Brand",
+                title: row.name,
+                desc: row.description,
+                img: row.image_url || "/placeholder.jpg",
+                tag: row.badge || "Featured",
+                accent: row.accent || "forest",
+                fit: "cover"
+            })) : [
               { 
                 brand: "KeraZone", 
                 title: "Black Stingless Bee Honey", 
@@ -122,7 +135,7 @@ export default async function HomePage() {
                 accent: "terracotta",
                 fit: "contain"
               }
-            ].map((prod, idx) => (
+            ]).map((prod, idx) => (
               <div key={idx} className="group bg-white rounded-[32px] overflow-hidden border border-cream-dark transition-all duration-500 hover:shadow-[0_24px_80px_rgba(45,90,61,0.08)] hover:-translate-y-2 flex flex-col">
                 <div className={`aspect-[4/3] overflow-hidden relative ${prod.fit === 'contain' ? 'bg-[#F2EADA]' : ''}`}>
                   <img 
@@ -305,8 +318,9 @@ export default async function HomePage() {
               {[
                 { name: "Southeast Asia", desc: "Spices, Rice, and Tropical Commodities", img: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=100&q=60", count: "12+" },
                 { name: "Middle East", desc: "Trading Hub, Processing & Distribution", img: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=100&q=60", count: "HQ" },
-                { name: "Africa", desc: "Raw Cocoa, Coffee, and Specialty Grains", img: "https://images.unsplash.com/photo-1547471080-7cb2cb6a5a36?w=100&q=60", count: "8+" },
-                { name: "Americas", desc: "Premium Nuts, Wheat, and Corn", img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=100&q=60", count: "5+" }
+                { name: "Africa", desc: "Raw Cocoa, Coffee, and Specialty Grains", img: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=100&q=60", count: "8+" },
+                { name: "Americas", desc: "Premium Nuts, Wheat, and Corn", img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=100&q=60", count: "5+" },
+                { name: "Europe", desc: "Dairy, Processed Foods & Premium Ingredients", img: "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=100&q=60", count: "6+" }
               ].map((origin, idx) => (
                 <div key={origin.name} className="flex items-center gap-4 lg:gap-5 p-4 lg:p-5 bg-white border border-black/5 rounded-[16px] transition-all duration-400 hover:border-sage-light hover:translate-x-1 lg:hover:translate-x-2 hover:shadow-[0_8px_30px_rgba(45,90,61,0.05)] group">
                    <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full overflow-hidden shrink-0 border-2 border-cream-dark transition-all duration-300 group-hover:border-sage">

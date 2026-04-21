@@ -102,4 +102,11 @@
   .clip-path-bottom {
     clip-path: polygon(0 0, 100% 0, 100% 100%, 0 calc(100% - 5vw));
   }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }

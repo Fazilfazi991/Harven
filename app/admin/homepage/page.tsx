@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Terminal, AlertCircle, RefreshCw, Plus, Image as ImageIcon, Video, Trash2, Edit2, Play, Pause } from 'lucide-react'
+import { Terminal, AlertCircle, RefreshCw, Plus, Image as ImageIcon, Video, Trash2, Edit2, Play, Pause, Loader2, UploadCloud } from 'lucide-react'
 
 export default function HomepageCMS() {
   const [activeTab, setActiveTab] = useState('slider')
@@ -12,6 +12,8 @@ export default function HomepageCMS() {
   
   // Slide Editing State
   const [editingSlide, setEditingSlide] = useState<any>(null)
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [uploadingVideo, setUploadingVideo] = useState(false)
 
   useEffect(() => {
     fetchSlides()
@@ -70,6 +72,30 @@ export default function HomepageCMS() {
     } catch (err: any) {
       console.error(err)
       alert("Error saving slide: " + (err.message || 'Unknown error'))
+    }
+  }
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: 'image_url' | 'video_url') => {
+    if (!e.target.files || e.target.files.length === 0) return
+    const isVideo = fieldName === 'video_url'
+    if (isVideo) setUploadingVideo(true)
+    else setUploadingImage(true)
+    
+    try {
+      const file = e.target.files[0]
+      const supabase = createClient()
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Math.random()}-${Date.now()}.${fileExt}`
+      const { error } = await supabase.storage.from('harven_assets').upload(fileName, file)
+      if (error) throw error
+      const { data } = supabase.storage.from('harven_assets').getPublicUrl(fileName)
+      setEditingSlide({...editingSlide, [fieldName]: data.publicUrl})
+    } catch (err) {
+      console.error(err)
+      alert("Failed to upload file. Ensure 'harven_assets' bucket exists and allows uploads.")
+    } finally {
+      if (isVideo) setUploadingVideo(false)
+      else setUploadingImage(false)
     }
   }
 
@@ -145,13 +171,47 @@ export default function HomepageCMS() {
                 
                 <div className="space-y-1.5">
                    <label className="text-[0.65rem] font-mono uppercase tracking-widest text-text-muted ml-1">Poster Image URL</label>
-                   <input type="text" required value={editingSlide.image_url || ''} onChange={e => setEditingSlide({...editingSlide, image_url: e.target.value})} className="w-full p-4 bg-cream/50 border border-cream-dark rounded-xl focus:outline-forest" placeholder="https://..." />
+                   <div className="flex gap-4 items-start">
+                     <div className="flex-1">
+                       <input type="text" required value={editingSlide.image_url || ''} onChange={e => setEditingSlide({...editingSlide, image_url: e.target.value})} className="w-full p-4 bg-cream/50 border border-cream-dark rounded-xl focus:outline-forest" placeholder="https://..." />
+                     </div>
+                     <div className="relative shrink-0">
+                       <input 
+                         type="file" 
+                         accept="image/*"
+                         onChange={(e) => handleFileUpload(e, 'image_url')}
+                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                         disabled={uploadingImage}
+                       />
+                       <button type="button" className="px-6 py-4 bg-cream-warm border border-cream-dark rounded-xl flex items-center gap-2 text-sm font-medium hover:bg-cream-dark transition-colors h-[54px]">
+                         {uploadingImage ? <Loader2 className="animate-spin" size={18} /> : <UploadCloud size={18} />}
+                         {uploadingImage ? 'Uploading...' : 'Upload'}
+                       </button>
+                     </div>
+                   </div>
                 </div>
 
                 {editingSlide.media_type === 'video' && (
                   <div className="space-y-1.5">
                     <label className="text-[0.65rem] font-mono uppercase tracking-widest text-text-muted ml-1">Video File URL/Path</label>
-                    <input type="text" required value={editingSlide.video_url || ''} onChange={e => setEditingSlide({...editingSlide, video_url: e.target.value})} className="w-full p-4 bg-cream/50 border border-forest/30 rounded-xl focus:outline-forest text-forest font-medium" placeholder="/videos/hero-1.mov" />
+                    <div className="flex gap-4 items-start">
+                      <div className="flex-1">
+                        <input type="text" required value={editingSlide.video_url || ''} onChange={e => setEditingSlide({...editingSlide, video_url: e.target.value})} className="w-full p-4 bg-cream/50 border border-forest/30 rounded-xl focus:outline-forest text-forest font-medium" placeholder="/videos/hero-1.mov" />
+                      </div>
+                      <div className="relative shrink-0">
+                        <input 
+                          type="file" 
+                          accept="video/*"
+                          onChange={(e) => handleFileUpload(e, 'video_url')}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          disabled={uploadingVideo}
+                        />
+                        <button type="button" className="px-6 py-4 bg-forest/10 text-forest border border-forest/20 rounded-xl flex items-center gap-2 text-sm font-medium hover:bg-forest/20 transition-colors h-[54px]">
+                          {uploadingVideo ? <Loader2 className="animate-spin" size={18} /> : <UploadCloud size={18} />}
+                          {uploadingVideo ? 'Uploading...' : 'Upload'}
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -162,6 +222,21 @@ export default function HomepageCMS() {
                 <div className="space-y-1.5">
                    <label className="text-[0.65rem] font-mono uppercase tracking-widest text-text-muted ml-1">CTA Link</label>
                    <input type="text" value={editingSlide.cta_link || ''} onChange={e => setEditingSlide({...editingSlide, cta_link: e.target.value})} className="w-full p-4 bg-cream/50 border border-cream-dark rounded-xl focus:outline-forest" />
+                </div>
+                
+                <div className="sm:col-span-2 mt-4 pt-4 border-t border-cream-dark">
+                   <label className="flex items-center gap-3 cursor-pointer p-4 bg-cream rounded-xl">
+                     <input 
+                       type="checkbox" 
+                       className="w-5 h-5 rounded text-forest focus:ring-forest" 
+                       checked={editingSlide.is_active ?? true} 
+                       onChange={e => setEditingSlide({...editingSlide, is_active: e.target.checked})} 
+                     />
+                     <div>
+                       <span className="text-sm font-bold block text-text-dark">Slide is Active</span>
+                       <span className="text-[0.7rem] text-text-muted font-light">If unchecked, this slide will not appear on the public homepage slider.</span>
+                     </div>
+                   </label>
                 </div>
               </div>
             </div>

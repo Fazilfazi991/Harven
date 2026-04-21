@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     }
 
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash", // Using stable Flash model for better reliability
+      model: "gemini-1.5-flash-8b", // Using Flash-Lite model as requested
       systemInstruction: SYSTEM_PROMPT
     });
 

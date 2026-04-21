@@ -1,15 +1,67 @@
 "use client";
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { LandingPageEditor } from '@/components/admin/LandingPageEditor'
 import { Button } from '@/components/ui/Button'
-import { ArrowLeft, ExternalLink, Save } from 'lucide-react'
+import { ArrowLeft, ExternalLink, Save, Loader2 } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 
 export default function EditLandingPage() {
   const { id } = useParams()
+  const router = useRouter()
   const isNew = id === 'new'
+
+  const [loading, setLoading] = useState(!isNew)
+  const [saving, setSaving] = useState(false)
+  const [pageData, setPageData] = useState<any>(null)
+
+  useEffect(() => {
+    if (isNew) return
+    const fetchPage = async () => {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from('landing_pages')
+        .select('*')
+        .eq('id', id)
+        .single()
+      
+      if (data) {
+        setPageData(data)
+      } else {
+        console.error("Error fetching landing page", error)
+      }
+      setLoading(false)
+    }
+    fetchPage()
+  }, [id, isNew])
+
+  const handleSave = async (data: any) => {
+    setSaving(true)
+    const supabase = createClient()
+    
+    if (isNew) {
+      const { error } = await supabase.from('landing_pages').insert([data])
+      if (error) {
+        alert("Error creating page: " + error.message)
+      } else {
+        router.push('/admin/landing-pages')
+      }
+    } else {
+      const { error } = await supabase.from('landing_pages').update(data).eq('id', id)
+      if (error) {
+        alert("Error updating page: " + error.message)
+      } else {
+        router.push('/admin/landing-pages')
+      }
+    }
+    setSaving(false)
+  }
+
+  if (loading) {
+    return <div className="min-h-[50vh] flex items-center justify-center text-forest"><Loader2 className="animate-spin" size={32} /></div>
+  }
 
   return (
     <>
@@ -19,27 +71,27 @@ export default function EditLandingPage() {
           <h1 className="font-display text-3xl font-semibold text-text-dark">{isNew ? 'Create Landing Page' : 'Edit Landing Page'}</h1>
         </div>
         <div className="flex gap-3">
-          {!isNew && (
-             <Button variant="ghost" className="py-2.5 px-6 !text-forest border-forest hover:bg-forest/5"><ExternalLink size={16} /> Preview Page</Button>
+          {!isNew && pageData?.slug && (
+             <Link href={`/${pageData.slug}`} target="_blank">
+               <Button variant="ghost" className="py-2.5 px-6 !text-forest border-forest hover:bg-forest/5">
+                 <ExternalLink size={16} /> Preview Page
+               </Button>
+             </Link>
           )}
-          <Button variant="primary" className="py-2.5 px-6" onClick={() => alert("Mock Saving...")}><Save size={16} /> Save Changes</Button>
+          <Button 
+            variant="primary" 
+            className="py-2.5 px-6" 
+            type="submit" 
+            form="landing-page-form"
+            disabled={saving}
+          >
+            {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} 
+            {saving ? 'Saving...' : 'Save Changes'}
+          </Button>
         </div>
       </div>
       
-      <LandingPageEditor initialData={isNew ? null : {
-        title: 'Premium Black Pepper Offer',
-        slug: 'premium-black-pepper',
-        meta_description: 'Top grade ASTA black pepper...',
-        hero_headline: 'Premium Black Pepper — Now Available',
-        hero_subtext: 'High ASTA, cleaned...',
-        hero_badge: 'New Arrival',
-        show_chatbot: true,
-        show_inquiry_form: true,
-        is_published: true,
-        content_blocks: [
-          { id: '1', type: 'text', content: '<p>Our latest shipment of Vietnam-origin Black Pepper has arrived.</p>' }
-        ]
-      }} />
+      <LandingPageEditor initialData={pageData} onSave={handleSave} />
     </>
   )
 }

@@ -30,7 +30,7 @@ export async function updateSession(request: NextRequest) {
           getAll() {
             return request.cookies.getAll()
           },
-          setAll(cookiesToSet) {
+          setAll(cookiesToSet: any[]) {
             cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
             supabaseResponse = NextResponse.next({
               request,
@@ -44,8 +44,19 @@ export async function updateSession(request: NextRequest) {
     )
 
     // Check user session
-    await supabase.auth.getUser()
+    const { data: { user } } = await supabase.auth.getUser()
     
+    // Protect /admin routes
+    if (request.nextUrl.pathname.startsWith('/admin') && request.nextUrl.pathname !== '/admin/login') {
+      if (!user) {
+        return NextResponse.redirect(new URL('/admin/login', request.url))
+      }
+    }
+    
+    // Redirect logged-in users away from login page
+    if (request.nextUrl.pathname === '/admin/login' && user) {
+      return NextResponse.redirect(new URL('/admin', request.url))
+    }
     return supabaseResponse
   } catch (e) {
     console.error("Middleware Supabase Error:", e)
