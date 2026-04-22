@@ -78,12 +78,16 @@ export function MediaLibrary({ isOpen, onClose, onSelect }: MediaLibraryProps) {
     if (!confirm('Are you sure you want to delete this image?')) return;
     try {
       const supabase = createClient();
-      const { error } = await supabase.storage.from(bucketName).remove([fileName]);
+      const { data, error } = await supabase.storage.from(bucketName).remove([fileName]);
       if (error) throw error;
+      console.log('Delete response:', data);
+      if (!data || data.length === 0) {
+        alert("File was not found in storage or could not be removed.");
+      }
       await fetchFiles();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Delete error:', err);
-      alert('Failed to delete image.');
+      alert('Failed to delete image: ' + (err.message || 'Unknown error'));
     }
   };
 
@@ -120,7 +124,7 @@ export function MediaLibrary({ isOpen, onClose, onSelect }: MediaLibraryProps) {
               {uploading ? 'Uploading...' : 'Upload New'}
               <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} disabled={uploading} />
             </label>
-            <button onClick={onClose} className="text-text-muted hover:text-text-dark p-2 rounded-full hover:bg-black/5 transition-all">
+            <button type="button" onClick={onClose} className="text-text-muted hover:text-text-dark p-2 rounded-full hover:bg-black/5 transition-all">
               <X size={24} />
             </button>
           </div>
@@ -151,6 +155,7 @@ export function MediaLibrary({ isOpen, onClose, onSelect }: MediaLibraryProps) {
                   {/* Overlay on hover */}
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                     <button 
+                      type="button"
                       onClick={(e) => { e.stopPropagation(); onSelect(file.url); }}
                       className="bg-white text-forest p-2 rounded-lg hover:bg-forest hover:text-white transition-all shadow-xl"
                       title="Select this image"
@@ -158,6 +163,7 @@ export function MediaLibrary({ isOpen, onClose, onSelect }: MediaLibraryProps) {
                       <CheckCircle2 size={20} />
                     </button>
                     <button 
+                      type="button"
                       onClick={(e) => { e.stopPropagation(); handleDelete(file.name); }}
                       className="bg-white text-red-500 p-2 rounded-lg hover:bg-red-500 hover:text-white transition-all shadow-xl"
                       title="Delete image"
@@ -190,12 +196,14 @@ export function MediaLibrary({ isOpen, onClose, onSelect }: MediaLibraryProps) {
           </p>
           <div className="flex gap-3">
             <button 
+              type="button"
               onClick={onClose}
               className="px-6 py-2.5 rounded-xl text-sm font-medium border border-cream-dark hover:bg-white transition-all"
             >
               Cancel
             </button>
             <button 
+              type="button"
               disabled={!selectedUrl}
               onClick={() => selectedUrl && onSelect(selectedUrl)}
               className="bg-forest text-white px-8 py-2.5 rounded-xl text-sm font-medium hover:bg-forest-deep transition-all shadow-lg shadow-forest/10 disabled:opacity-50 disabled:grayscale"

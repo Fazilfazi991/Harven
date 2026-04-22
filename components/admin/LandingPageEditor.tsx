@@ -58,6 +58,13 @@ export function LandingPageEditor({ initialData = null, onSave }: { initialData?
   const [activeTab, setActiveTab] = useState('basic')
   const [blocks, setBlocks] = useState<any[]>(initialData?.content_blocks || [])
   const [heroImageUrl, setHeroImageUrl] = useState(initialData?.hero_image_url || '')
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) return null;
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

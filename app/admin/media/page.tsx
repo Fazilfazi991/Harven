@@ -71,13 +71,17 @@ export default function MediaLibraryPage() {
     if (!confirm('Are you sure you want to delete this image?')) return;
     try {
       const supabase = createClient();
-      const { error } = await supabase.storage.from(bucketName).remove([fileName]);
+      const { data, error } = await supabase.storage.from(bucketName).remove([fileName]);
       if (error) throw error;
+      console.log('Delete response:', data);
+      if (!data || data.length === 0) {
+        alert("File was not found in storage or could not be removed.");
+      }
       await fetchFiles();
       if (selectedUrl?.includes(fileName)) setSelectedUrl(null);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Delete error:', err);
-      alert('Failed to delete image.');
+      alert('Failed to delete image: ' + (err.message || 'Unknown error'));
     }
   };
 
@@ -144,6 +148,7 @@ export default function MediaLibraryPage() {
                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
                     <div className="flex gap-2">
                       <button 
+                        type="button"
                         onClick={(e) => { e.stopPropagation(); copyToClipboard(file.url); }}
                         className="bg-white text-forest p-2.5 rounded-xl hover:bg-forest hover:text-white transition-all shadow-xl"
                         title="Copy URL"
@@ -162,6 +167,7 @@ export default function MediaLibraryPage() {
                       </a>
                     </div>
                     <button 
+                      type="button"
                       onClick={(e) => { e.stopPropagation(); handleDelete(file.name); }}
                       className="bg-white text-red-500 px-4 py-2 rounded-xl text-xs font-bold hover:bg-red-500 hover:text-white transition-all shadow-xl mt-2"
                     >
@@ -189,6 +195,7 @@ export default function MediaLibraryPage() {
             <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-full border border-forest/20 shadow-sm animate-in slide-in-from-bottom-2">
                <span className="text-[0.7rem] text-forest font-bold font-mono truncate max-w-[200px]">{selectedUrl}</span>
                <button 
+                 type="button"
                  onClick={() => copyToClipboard(selectedUrl)}
                  className="text-forest hover:opacity-70 transition-opacity"
                >

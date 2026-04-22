@@ -26,7 +26,10 @@ export default function BrandsCMS() {
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null)
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
 
+  const [mounted, setMounted] = useState(false)
+ 
   useEffect(() => {
+    setMounted(true)
     fetchBrands()
     fetchBrandTypes()
   }, [])
@@ -182,6 +185,8 @@ export default function BrandsCMS() {
 
   // ─── UNIQUE BRAND TYPES from loaded brands ─────────────────────────────
   const uniqueBrandTypes = ['All', ...Array.from(new Set(brands.map(b => b.brand_type).filter(Boolean)))]
+
+  if (!mounted) return null;
 
   return (
     <div className="max-w-6xl mx-auto">

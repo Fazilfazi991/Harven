@@ -34,9 +34,9 @@ export function ImagePicker({ label, value, onChange, className = "", placeholde
       
       const { data } = supabase.storage.from(bucketName).getPublicUrl(fileName);
       onChange(data.publicUrl);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Upload error:', err);
-      alert('Failed to upload image.');
+      alert('Failed to upload image: ' + (err.message || 'Unknown error'));
     } finally {
       setUploading(false);
     }

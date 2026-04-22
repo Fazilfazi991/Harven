@@ -14,8 +14,10 @@ export default function AdminDashboard() {
   const [recentInquiries, setRecentInquiries] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
     fetchDashboardData()
   }, [])
 
@@ -63,6 +65,8 @@ export default function AdminDashboard() {
     { title: 'Active Landing Pages', val: stats.activeLandingPages.toString(), icon: '📄', color: 'bg-purple-50 text-purple-600' },
     { title: 'Chatbot Interactions', val: stats.chatbotInteractions.toString(), icon: '🤖', color: 'bg-orange-50 text-orange-600' },
   ]
+
+  if (!mounted) return null;
 
   return (
     <>
