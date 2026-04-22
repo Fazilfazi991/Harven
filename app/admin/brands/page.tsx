@@ -490,11 +490,20 @@ export default function BrandsCMS() {
                 </div>
               </div>
 
-              <div className="pt-2">
+              <div className="pt-2 flex gap-3">
+                {currentBrand.id && (
+                  <button 
+                    type="button"
+                    onClick={() => handleDelete(currentBrand.id)}
+                    className="flex-1 bg-terracotta/10 text-terracotta py-4 rounded-2xl font-semibold hover:bg-terracotta hover:text-white transition-all flex items-center justify-center gap-2"
+                  >
+                    <Trash2 size={20} /> Delete Item
+                  </button>
+                )}
                 <button
                   type="submit"
                   disabled={saving}
-                  className="w-full bg-forest text-white py-4 rounded-2xl font-semibold shadow-xl shadow-forest/20 hover:bg-forest-deep transition-all flex items-center justify-center gap-2"
+                  className={`${currentBrand.id ? 'flex-[2]' : 'w-full'} bg-forest text-white py-4 rounded-2xl font-semibold shadow-xl shadow-forest/20 hover:bg-forest-deep transition-all flex items-center justify-center gap-2`}
                 >
                   {saving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
                   {currentBrand.id ? 'Save Changes' : 'Create Brand Item'}

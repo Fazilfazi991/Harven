@@ -226,6 +226,15 @@ export default function HomepageCMS() {
 
             <div className="flex justify-end gap-3 mt-10">
                <button type="button" onClick={() => setEditingSlide(null)} className="px-6 py-3 text-sm font-bold text-text-muted hover:text-text-dark transition-colors">Cancel</button>
+               {editingSlide.id && (
+                 <button 
+                   type="button" 
+                   onClick={() => handleDelete(editingSlide.id)} 
+                   className="bg-terracotta/10 text-terracotta px-6 py-3 rounded-xl text-sm font-bold hover:bg-terracotta hover:text-white transition-all"
+                 >
+                   Delete Slide
+                 </button>
+               )}
                <button type="submit" className="bg-forest text-white px-10 py-3 rounded-xl text-sm font-bold hover:bg-forest-deep transition-all shadow-xl shadow-forest/10">Save Slide</button>
             </div>
           </form>

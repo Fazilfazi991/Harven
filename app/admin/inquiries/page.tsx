@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Search, Mail, Phone, Building2, Package, Globe, ExternalLink, RefreshCw, Terminal } from 'lucide-react'
+import { Search, Mail, Phone, Building2, Package, Globe, ExternalLink, RefreshCw, Terminal, Trash2 } from 'lucide-react'
 
 export default function InquiriesCMS() {
   const [inquiries, setInquiries] = useState<any[]>([])
@@ -59,6 +59,22 @@ export default function InquiriesCMS() {
      } catch (err) {
        console.error(err)
      }
+  }
+
+  const deleteInquiry = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this inquiry? This action cannot be undone.")) return
+    try {
+      const supabase = createClient()
+      const { error: deleteErr } = await supabase.from('inquiries').delete().eq('id', id)
+      if (!deleteErr) {
+        setInquiries(prev => prev.filter(inv => inv.id !== id))
+        setSelectedInquiry(null)
+      } else {
+        alert("Failed to delete inquiry: " + deleteErr.message)
+      }
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   const filteredInquiries = inquiries.filter(inv => 
@@ -158,19 +174,28 @@ export default function InquiriesCMS() {
                         </div>
                      </div>
                    </div>
-                   <select 
-                     value={selectedInquiry.status}
-                     onChange={(e) => updateStatus(selectedInquiry.id, e.target.value)}
-                     className={`p-2.5 text-[0.65rem] font-bold border-none rounded-lg outline-none cursor-pointer shadow-sm transition-colors ${
-                       selectedInquiry.status === 'new' ? 'bg-orange-100 text-orange-800 hover:bg-orange-200' : 
-                       selectedInquiry.status === 'responded' ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' : 
-                       'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                     }`}
-                   >
-                      <option value="new">MARK AS NEW</option>
-                      <option value="responded">MARK AS RESPONDED</option>
-                      <option value="closed">MARK AS CLOSED</option>
-                   </select>
+                   <div className="flex gap-2 items-center">
+                    <button 
+                      onClick={() => deleteInquiry(selectedInquiry.id)}
+                      className="p-2.5 text-terracotta hover:bg-terracotta/10 rounded-lg transition-colors border border-terracotta/20"
+                      title="Delete Inquiry"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                    <select 
+                      value={selectedInquiry.status}
+                      onChange={(e) => updateStatus(selectedInquiry.id, e.target.value)}
+                      className={`p-2.5 text-[0.65rem] font-bold border-none rounded-lg outline-none cursor-pointer shadow-sm transition-colors ${
+                        selectedInquiry.status === 'new' ? 'bg-orange-100 text-orange-800 hover:bg-orange-200' : 
+                        selectedInquiry.status === 'responded' ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' : 
+                        'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                      }`}
+                    >
+                        <option value="new">MARK AS NEW</option>
+                        <option value="responded">MARK AS RESPONDED</option>
+                        <option value="closed">MARK AS CLOSED</option>
+                    </select>
+                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">

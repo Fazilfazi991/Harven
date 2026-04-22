@@ -91,6 +91,7 @@ export default function ProductsCMS() {
     try {
        const supabase = createClient()
        await supabase.from('products').delete().eq('id', id)
+       setIsModalOpen(false)
        fetchProducts()
     } catch (err) {
        console.error(err)
@@ -285,14 +286,25 @@ export default function ProductsCMS() {
                 </div>
               </div>
 
-              <button 
-                type="submit"
-                disabled={saving}
-                className="w-full bg-forest text-white py-4 rounded-2xl font-semibold shadow-xl shadow-forest/20 hover:bg-forest-deep transition-all flex items-center justify-center gap-2 mt-4"
-              >
-                {saving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
-                {currentProduct.id ? 'Save Changes' : 'Create Product'}
-              </button>
+              <div className="flex gap-3 mt-4">
+                {currentProduct.id && (
+                  <button 
+                    type="button"
+                    onClick={() => handleDelete(currentProduct.id)}
+                    className="flex-1 bg-terracotta/10 text-terracotta py-4 rounded-2xl font-semibold hover:bg-terracotta hover:text-white transition-all flex items-center justify-center gap-2"
+                  >
+                    <Trash2 size={20} /> Delete Product
+                  </button>
+                )}
+                <button 
+                  type="submit"
+                  disabled={saving}
+                  className={`${currentProduct.id ? 'flex-[2]' : 'w-full'} bg-forest text-white py-4 rounded-2xl font-semibold shadow-xl shadow-forest/20 hover:bg-forest-deep transition-all flex items-center justify-center gap-2`}
+                >
+                  {saving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
+                  {currentProduct.id ? 'Save Changes' : 'Create Product'}
+                </button>
+              </div>
             </form>
           </div>
         </div>
