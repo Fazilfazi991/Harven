@@ -1,23 +1,30 @@
-const path = require('path');
-const fs = require('fs');
+const { createServer } = require('http');
+const { parse } = require('url');
+const next = require('next');
 
-// 1. Force Production Environment
-process.env.NODE_ENV = 'production';
+const dev = process.env.NODE_ENV !== 'production';
+const hostname = process.env.HOSTNAME || '127.0.0.1';
+const port = process.env.PORT || 3000;
 
-// 2. Define path to the standalone directory
-const standaloneDir = path.join(__dirname, '.next', 'standalone');
+const app = next({ dev, hostname, port });
+const handle = app.getRequestHandler();
 
-if (fs.existsSync(standaloneDir)) {
-  console.log('Starting Next.js Standalone server for Hostinger...');
-  
-  // 3. Change working directory to standalone so it uses the optimized node_modules and .next folder
-  process.chdir(standaloneDir);
-  
-  // 4. Require the generated standalone server
-  require(path.join(standaloneDir, 'server.js'));
-} else {
-  // Fallback in case standalone build failed or was not generated
-  console.error("Standalone directory not found! Falling back to standard Next.js start.");
-  const { execSync } = require('child_process');
-  execSync('npx next start', { stdio: 'inherit' });
-}
+app.prepare().then(() => {
+  createServer(async (req, res) => {
+    try {
+      const parsedUrl = parse(req.url, true);
+      await handle(req, res, parsedUrl);
+    } catch (err) {
+      console.error('Error occurred handling', req.url, err);
+      res.statusCode = 500;
+      res.end('internal server error');
+    }
+  })
+    .once('error', (err) => {
+      console.error(err);
+      process.exit(1);
+    })
+    .listen(port, () => {
+      console.log(`> Ready on http://${hostname}:${port}`);
+    });
+});
