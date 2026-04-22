@@ -1,10 +1,14 @@
 "use client";
 
-import React, { useState } from 'react'
+import React, { useState, Suspense } from 'react'
 import { Button } from '@/components/ui/Button'
 import { MapPin, Phone, Mail } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 
-export default function ContactPage() {
+function ContactForm() {
+  const searchParams = useSearchParams()
+  const prefillProduct = searchParams.get('product') || ''
+  
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
@@ -46,6 +50,65 @@ export default function ContactPage() {
     }
   }
 
+  const inputClasses = "p-4 bg-white rounded-xl border border-cream-dark focus:border-sage focus:outline-none focus:ring-1 focus:ring-sage text-text-dark transition-all"
+
+  return (
+    <div className="bg-white p-8 lg:p-12 rounded-3xl shadow-xl border border-black/5">
+      <h3 className="font-display text-2xl text-text-dark font-semibold mb-8">Send an Inquiry</h3>
+      {success ? (
+        <div className="bg-sage/10 border border-sage p-8 rounded-2xl text-center">
+          <div className="text-4xl mb-4">✅</div>
+          <h4 className="font-display text-xl font-semibold text-forest mb-2">Inquiry Received</h4>
+          <p className="text-text-muted font-light mb-6">Our trading team will review your request and get back to you shortly.</p>
+          <a href="https://wa.me/971561625698" target="_blank" rel="noreferrer" className="inline-block bg-forest text-white px-6 py-3 rounded-full hover:bg-forest-deep transition-colors text-sm font-medium">Follow up on WhatsApp</a>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          {error && <div className="bg-terracotta/10 text-terracotta text-sm p-4 rounded-xl">{error}</div>}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <input name="name" type="text" placeholder="Full Name *" required className={inputClasses} />
+            <input name="company" type="text" placeholder="Company Name *" required className={inputClasses} />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <input name="email" type="email" placeholder="Email Address *" required className={inputClasses} />
+            <input name="phone" type="tel" placeholder="Phone / WhatsApp *" required className={inputClasses} />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <select 
+              name="product_interest" 
+              required 
+              className={inputClasses} 
+              defaultValue={prefillProduct}
+            >
+              <option value="" disabled>Product Interest *</option>
+              <option value="spices">Spices</option>
+              <option value="grains">Grains</option>
+              <option value="nuts">Nuts & Dry Fruits</option>
+              <option value="cardamom">Cardamom</option>
+              <option value="honey">Stingless Bee Honey</option>
+              <option value="mango">Mango Pulp</option>
+              <option value="other">Other</option>
+            </select>
+            <input name="quantity" type="text" placeholder="Quantity Required *" required className={inputClasses} />
+          </div>
+          <textarea 
+            name="message" 
+            rows={5} 
+            placeholder="Your Message *" 
+            required 
+            className={inputClasses + " resize-none"} 
+            defaultValue={prefillProduct ? `Interested in ${prefillProduct}. Please provide wholesale details.` : ''}
+          />
+          <Button variant="primary" type="submit" className="w-full mt-2" disabled={loading}>
+            {loading ? 'Sending...' : 'Submit Inquiry'}
+          </Button>
+        </form>
+      )}
+    </div>
+  )
+}
+
+export default function ContactPage() {
   return (
     <>
       <section className="bg-forest-deep pt-36 pb-24 px-8 lg:px-16 text-center text-white">
@@ -107,43 +170,9 @@ export default function ContactPage() {
             </div>
           </div>
 
-          <div className="bg-white p-8 lg:p-12 rounded-3xl shadow-xl border border-black/5">
-            <h3 className="font-display text-2xl text-text-dark font-semibold mb-8">Send an Inquiry</h3>
-            {success ? (
-              <div className="bg-sage/10 border border-sage p-8 rounded-2xl text-center">
-                <div className="text-4xl mb-4">✅</div>
-                <h4 className="font-display text-xl font-semibold text-forest mb-2">Inquiry Received</h4>
-                <p className="text-text-muted font-light mb-6">Our trading team will review your request and get back to you shortly.</p>
-                <a href="https://wa.me/971561625698" target="_blank" rel="noreferrer" className="inline-block bg-forest text-white px-6 py-3 rounded-full hover:bg-forest-deep transition-colors text-sm font-medium">Follow up on WhatsApp</a>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-                {error && <div className="bg-terracotta/10 text-terracotta text-sm p-4 rounded-xl">{error}</div>}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <input name="name" type="text" placeholder="Full Name *" required className="p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none focus:ring-1 focus:ring-sage" />
-                  <input name="company" type="text" placeholder="Company Name *" required className="p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none focus:ring-1 focus:ring-sage" />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <input name="email" type="email" placeholder="Email Address *" required className="p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none focus:ring-1 focus:ring-sage" />
-                  <input name="phone" type="tel" placeholder="Phone / WhatsApp *" required className="p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none focus:ring-1 focus:ring-sage" />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <select name="product_interest" required className="p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none focus:ring-1 focus:ring-sage text-text-dark">
-                    <option value="" disabled selected>Product Interest *</option>
-                    <option value="spices">Spices</option>
-                    <option value="grains">Grains</option>
-                    <option value="nuts">Nuts & Dry Fruits</option>
-                    <option value="other">Other</option>
-                  </select>
-                  <input name="quantity" type="text" placeholder="Quantity Required *" required className="p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none focus:ring-1 focus:ring-sage" />
-                </div>
-                <textarea name="message" rows={5} placeholder="Your Message *" required className="p-4 bg-cream rounded-xl border border-transparent focus:border-sage focus:outline-none focus:ring-1 focus:ring-sage" />
-                <Button variant="primary" type="submit" className="w-full mt-2" disabled={loading}>
-                  {loading ? 'Sending...' : 'Submit Inquiry'}
-                </Button>
-              </form>
-            )}
-          </div>
+          <Suspense fallback={<div className="bg-white p-8 lg:p-12 rounded-3xl shadow-xl border border-black/5 animate-pulse h-[600px]" />}>
+            <ContactForm />
+          </Suspense>
         </div>
       </section>
     </>

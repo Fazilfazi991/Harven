@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, CheckCircle2 } from 'lucide-react'
 
 import { createClient } from '@/lib/supabase/client'
 
@@ -33,7 +33,7 @@ export default function ProductsPage() {
   const [selectedProduct, setSelectedProduct] = useState<any>(null)
   const [productsData, setProductsData] = useState<any[]>(MOCK_CATEGORIES)
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchDB = async () => {
       try {
         const supabase = createClient()
@@ -62,6 +62,51 @@ export default function ProductsPage() {
   const filteredProducts = activeTab === 'All' 
     ? productsData 
     : productsData.filter(p => p.category === activeTab)
+
+  const [formData, setFormData] = useState({
+    name: '',
+    company: '',
+    email: '',
+    phone: '',
+    quantity: '',
+    message: ''
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    try {
+      const response = await fetch('/api/inquiries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          product_interest: selectedProduct?.name,
+          source: 'product_modal'
+        }),
+      })
+
+      if (response.ok) {
+        setIsSubmitted(true)
+        setTimeout(() => {
+          setSelectedProduct(null)
+          setIsSubmitted(false)
+          setFormData({ name: '', company: '', email: '', phone: '', quantity: '', message: '' })
+        }, 2000)
+      } else {
+        alert("Failed to send inquiry. Please try again.")
+      }
+    } catch (err) {
+      console.error(err)
+      alert("An error occurred. Please try again.")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const inputClasses = "p-4 border border-cream-dark/60 rounded-xl bg-white focus:outline-forest focus:ring-1 focus:ring-forest transition-all placeholder:text-text-muted/50 text-text-dark"
 
   return (
     <>
@@ -118,28 +163,79 @@ export default function ProductsPage() {
 
       <Modal isOpen={!!selectedProduct} onClose={() => setSelectedProduct(null)} title={`Inquire about ${selectedProduct?.name}`}>
         <div className="flex flex-col gap-6">
-          <div className="flex gap-4 items-center bg-cream-warm p-4 rounded-xl border border-cream-dark">
-             <img src={selectedProduct?.img} alt="" className="w-16 h-16 rounded-lg object-cover" />
-             <div>
-               <div className="font-display text-lg font-semibold">{selectedProduct?.name}</div>
-               <div className="text-xs text-text-muted font-mono">{selectedProduct?.category}</div>
-             </div>
-          </div>
-          <form className="flex flex-col gap-5">
-            <p className="text-[0.85rem] text-text-muted font-light">Please fill out this quick form to request wholesale pricing, technical specifications, and shipping availability.</p>
-            <div className="grid grid-cols-2 gap-5">
-              <input type="text" placeholder="Your Name" className="p-4 border border-transparent rounded-xl bg-cream focus:outline-forest focus:ring-1 focus:ring-forest" required />
-              <input type="text" placeholder="Company Name" className="p-4 border border-transparent rounded-xl bg-cream focus:outline-forest focus:ring-1 focus:ring-forest" required />
+          {isSubmitted ? (
+            <div className="flex flex-col items-center justify-center py-12 gap-4 text-center">
+              <div className="w-16 h-16 bg-forest/10 rounded-full flex items-center justify-center text-forest">
+                <CheckCircle2 size={32} />
+              </div>
+              <h3 className="font-display text-2xl font-semibold text-text-dark">Inquiry Sent!</h3>
+              <p className="text-text-muted">Thank you for your interest in {selectedProduct?.name}. Our team will contact you shortly.</p>
             </div>
-            <div className="grid grid-cols-2 gap-5">
-              <input type="email" placeholder="Email Address" className="p-4 border border-transparent rounded-xl bg-cream focus:outline-forest focus:ring-1 focus:ring-forest" required />
-              <input type="text" placeholder="Quantity Required" className="p-4 border border-transparent rounded-xl bg-cream focus:outline-forest focus:ring-1 focus:ring-forest" required />
-            </div>
-            <textarea placeholder="Additional Details (e.g. Origin preference, packing, delivery port)" rows={4} className="p-4 border border-transparent rounded-xl bg-cream focus:outline-forest focus:ring-1 focus:ring-forest resize-none" />
-            <Button variant="primary" className="mt-2" type="submit" onClick={(e) => { e.preventDefault(); alert("Inquiry Sent successfully!") }}>
-              Submit Inquiry
-            </Button>
-          </form>
+          ) : (
+            <>
+              <div className="flex gap-4 items-center bg-cream-warm p-4 rounded-xl border border-cream-dark">
+                 <img src={selectedProduct?.img} alt="" className="w-16 h-16 rounded-lg object-cover" />
+                 <div>
+                   <div className="font-display text-lg font-semibold">{selectedProduct?.name}</div>
+                   <div className="text-xs text-text-muted font-mono">{selectedProduct?.category}</div>
+                 </div>
+              </div>
+              <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                <p className="text-[0.85rem] text-text-muted font-light">Please fill out this quick form to request wholesale pricing, technical specifications, and shipping availability.</p>
+                <div className="grid grid-cols-2 gap-5">
+                  <input 
+                    type="text" 
+                    placeholder="Your Name" 
+                    className={inputClasses} 
+                    required 
+                    value={formData.name}
+                    onChange={e => setFormData({...formData, name: e.target.value})}
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="Company Name" 
+                    className={inputClasses} 
+                    required 
+                    value={formData.company}
+                    onChange={e => setFormData({...formData, company: e.target.value})}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-5">
+                  <input 
+                    type="email" 
+                    placeholder="Email Address" 
+                    className={inputClasses} 
+                    required 
+                    value={formData.email}
+                    onChange={e => setFormData({...formData, email: e.target.value})}
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="Quantity Required" 
+                    className={inputClasses} 
+                    required 
+                    value={formData.quantity}
+                    onChange={e => setFormData({...formData, quantity: e.target.value})}
+                  />
+                </div>
+                <textarea 
+                  placeholder="Additional Details (e.g. Origin preference, packing, delivery port)" 
+                  rows={4} 
+                  className={inputClasses + " resize-none"} 
+                  value={formData.message}
+                  onChange={e => setFormData({...formData, message: e.target.value})}
+                />
+                <Button 
+                  variant="primary" 
+                  className="mt-2" 
+                  type="submit" 
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Sending...' : 'Submit Inquiry'}
+                </Button>
+              </form>
+            </>
+          )}
         </div>
       </Modal>
     </>
