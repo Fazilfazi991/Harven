@@ -3,13 +3,6 @@
 import React, { useState } from 'react'
 
 export default function SettingsCMS() {
-  const [mounted, setMounted] = React.useState(false)
-
-  React.useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  if (!mounted) return null;
 
   return (
     <>

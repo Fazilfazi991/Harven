@@ -14,10 +14,8 @@ export default function ProductsCMS() {
   const [isCatManagerOpen, setIsCatManagerOpen] = useState(false)
   const [currentProduct, setCurrentProduct] = useState<any>(null)
   const [saving, setSaving] = useState(false)
-  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
     fetchProducts()
     fetchCategories()
   }, [])
@@ -100,8 +98,6 @@ export default function ProductsCMS() {
     }
   }
 
-  if (!mounted) return null;
-  
   return (
     <div className="max-w-6xl mx-auto">
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8">
