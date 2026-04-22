@@ -10,10 +10,14 @@ export default function InquiriesCMS() {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
     fetchInquiries()
   }, [])
+
+  if (!mounted) return null;
 
   const fetchInquiries = async () => {
     setLoading(true)

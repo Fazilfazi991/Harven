@@ -14,10 +14,14 @@ export default function HomepageCMS() {
   // Slide Editing State
   const [editingSlide, setEditingSlide] = useState<any>(null)
   const [uploadingVideo, setUploadingVideo] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
     fetchSlides()
   }, [])
+
+  if (!mounted) return null;
 
   const fetchSlides = async () => {
     setLoading(true)

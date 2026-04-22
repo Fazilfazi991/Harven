@@ -9,6 +9,11 @@ import { createClient } from '@/lib/supabase/client'
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   if (pathname === '/admin/login') {
     return <>{children}</>
@@ -36,6 +41,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Inquiries', href: '/admin/inquiries', icon: <Inbox size={20} /> },
     { name: 'Settings', href: '/admin/settings', icon: <Settings size={20} /> },
   ]
+
+  if (!mounted) return null;
 
   return (
     <div className="flex h-screen bg-cream overflow-hidden">

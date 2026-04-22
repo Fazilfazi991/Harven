@@ -11,8 +11,16 @@ export default function MediaLibraryPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUrl, setSelectedUrl] = useState<string | null>(null);
   const [copySuccess, setCopySuccess] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   const bucketName = 'harven_assets';
+
+  useEffect(() => {
+    setMounted(true);
+    fetchFiles();
+  }, []);
+
+  if (!mounted) return null;
 
   const fetchFiles = async () => {
     setLoading(true);
@@ -42,9 +50,6 @@ export default function MediaLibraryPage() {
     }
   };
 
-  useEffect(() => {
-    fetchFiles();
-  }, []);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;

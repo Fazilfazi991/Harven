@@ -3,6 +3,14 @@
 import React from 'react'
 
 export default function ChatbotSettings() {
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) return null;
+
   return (
     <>
       <div className="mb-8">

@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/client'
 export default function LandingPagesList() {
   const [pages, setPages] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
 
   const fetchPages = async () => {
     setLoading(true)
@@ -23,8 +24,11 @@ export default function LandingPagesList() {
   }
 
   useEffect(() => {
+    setMounted(true)
     fetchPages()
   }, [])
+
+  if (!mounted) return null;
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this page?')) return;
