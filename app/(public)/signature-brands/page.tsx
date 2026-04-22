@@ -7,7 +7,7 @@ import { BrandSection } from '@/components/brands/BrandSection'
 
 import { createClient } from '@/lib/supabase/server'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 60 // Cache for 1 minute to reduce server overhead
 
 export const metadata = {
   title: 'Our Signature Brands | HARVEN Exclusive',

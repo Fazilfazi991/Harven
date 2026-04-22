@@ -5,7 +5,7 @@ import { ArrowRight } from 'lucide-react'
 import { Badge } from '@/components/ui/Badge'
 import { createClient } from '@/lib/supabase/server'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 60 // Revalidate every minute instead of force-dynamic to save server resources
 
 export default async function HomePage() {
   let stockItems = null;

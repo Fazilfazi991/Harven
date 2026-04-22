@@ -43,19 +43,23 @@ export async function updateSession(request: NextRequest) {
       }
     )
 
-    // Check user session
-    const { data: { user } } = await supabase.auth.getUser()
+    // Only check user session if we are in admin area or specifically checking login
+    const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
     
-    // Protect /admin routes
-    if (request.nextUrl.pathname.startsWith('/admin') && request.nextUrl.pathname !== '/admin/login') {
-      if (!user) {
-        return NextResponse.redirect(new URL('/admin/login', request.url))
+    if (isAdminRoute) {
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      // Protect /admin routes
+      if (request.nextUrl.pathname !== '/admin/login') {
+        if (!user) {
+          return NextResponse.redirect(new URL('/admin/login', request.url))
+        }
       }
-    }
-    
-    // Redirect logged-in users away from login page
-    if (request.nextUrl.pathname === '/admin/login' && user) {
-      return NextResponse.redirect(new URL('/admin', request.url))
+      
+      // Redirect logged-in users away from login page
+      if (request.nextUrl.pathname === '/admin/login' && user) {
+        return NextResponse.redirect(new URL('/admin', request.url))
+      }
     }
     return supabaseResponse
   } catch (e) {
