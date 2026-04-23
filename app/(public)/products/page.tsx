@@ -108,8 +108,7 @@ export default function ProductsPage() {
 
   const inputClasses = "p-4 border border-cream-dark/60 rounded-xl bg-white focus:outline-forest focus:ring-1 focus:ring-forest transition-all placeholder:text-text-muted/50 text-text-dark"
 
-  return (
-    <>
+    <div className="min-h-screen bg-cream-warm font-body">
       <section className="bg-forest-deep pt-40 pb-28 px-8 lg:px-16 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(196,112,75,0.15)_0%,transparent_60%)] pointer-events-none" />
         <h1 className="font-display text-5xl md:text-6xl text-white font-light tracking-tight mb-6 relative z-10">Premium Food <strong className="font-semibold italic text-wheat-light">Commodities.</strong></h1>
@@ -202,16 +201,16 @@ export default function ProductsPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-5">
                   <input 
-                    type="email" 
-                    placeholder="Email Address" 
+                    type="tel" 
+                    placeholder="Phone / Mobile Number *" 
                     className={inputClasses} 
                     required 
-                    value={formData.email}
-                    onChange={e => setFormData({...formData, email: e.target.value})}
+                    value={formData.phone}
+                    onChange={e => setFormData({...formData, phone: e.target.value})}
                   />
                   <input 
                     type="text" 
-                    placeholder="Quantity Required" 
+                    placeholder="Quantity Required *" 
                     className={inputClasses} 
                     required 
                     value={formData.quantity}
@@ -238,6 +237,6 @@ export default function ProductsPage() {
           )}
         </div>
       </Modal>
-    </>
+    </div>
   )
 }

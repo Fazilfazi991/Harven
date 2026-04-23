@@ -78,12 +78,8 @@ export function MediaLibrary({ isOpen, onClose, onSelect }: MediaLibraryProps) {
     if (!confirm('Are you sure you want to delete this image?')) return;
     try {
       const supabase = createClient();
-      const { data, error } = await supabase.storage.from(bucketName).remove([fileName]);
+      const { error } = await supabase.storage.from(bucketName).remove([fileName]);
       if (error) throw error;
-      console.log('Delete response:', data);
-      if (!data || data.length === 0) {
-        alert("File was not found in storage or could not be removed.");
-      }
       await fetchFiles();
     } catch (err: any) {
       console.error('Delete error:', err);

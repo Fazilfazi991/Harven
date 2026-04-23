@@ -2,9 +2,66 @@
 
 import React, { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { X, Plus, Edit2, Trash2, Loader2, Save, Settings } from 'lucide-react'
+import { X, Plus, Edit2, Trash2, Loader2, Save, Settings, GripVertical, CheckCircle2 } from 'lucide-react'
 import { CategoryManager } from '@/components/admin/CategoryManager'
 import { ImagePicker } from '@/components/admin/ImagePicker'
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+
+function SortableRow({ row, onEdit, onDelete, draggingIndex, index }: any) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: row.id })
+  const style = { transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 10 : 1 }
+
+  return (
+    <tr 
+      ref={setNodeRef} 
+      style={style} 
+      className={`border-b border-black/5 transition-colors group select-none ${isDragging ? 'bg-cream/80 opacity-50' : 'hover:bg-cream/30'}`}
+    >
+      <td className="px-4 py-4 text-center cursor-grab active:cursor-grabbing" {...attributes} {...listeners}>
+        <GripVertical size={16} className="mx-auto text-text-muted/30 group-hover:text-text-muted/70 transition-colors" />
+      </td>
+      <td className="px-6 py-4">
+         {row.image_url ? (
+           <img src={row.image_url} alt="" className="w-12 h-12 rounded-xl object-cover shadow-sm bg-white" />
+         ) : (
+           <div className="w-12 h-12 rounded-xl bg-cream flex items-center justify-center text-text-muted italic text-[0.6rem]">No Img</div>
+         )}
+      </td>
+      <td className="px-6 py-4">
+        <div className="font-semibold text-text-dark text-[0.95rem]">{row.name}</div>
+        <div className="text-[0.75rem] text-text-muted line-clamp-1 max-w-xs">{row.description}</div>
+      </td>
+      <td className="px-6 py-4">
+        <span className="px-3 py-1 bg-cream-warm border border-cream-dark rounded-full text-[0.7rem] text-text-mid font-medium">
+          {row.category}
+        </span>
+      </td>
+      <td className="px-6 py-4">
+         <span className={`px-2 py-1 rounded-full text-[0.65rem] font-bold uppercase tracking-wider ${row.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+          {row.is_active ? 'Active' : 'Draft'}
+        </span>
+      </td>
+      <td className="px-6 py-4">
+         <div className="flex justify-end gap-2">
+            <button 
+              onClick={() => onEdit(row)}
+              className="p-2 text-text-muted hover:text-forest hover:bg-forest/5 rounded-lg transition-all"
+            >
+              <Edit2 size={16} />
+            </button>
+            <button 
+              onClick={() => onDelete(row.id)}
+              className="p-2 text-text-muted hover:text-terracotta hover:bg-terracotta/5 rounded-lg transition-all"
+            >
+              <Trash2 size={16} />
+            </button>
+         </div>
+      </td>
+    </tr>
+  )
+}
 
 export default function ProductsCMS() {
   const [products, setProducts] = useState<any[]>([])
@@ -14,6 +71,13 @@ export default function ProductsCMS() {
   const [isCatManagerOpen, setIsCatManagerOpen] = useState(false)
   const [currentProduct, setCurrentProduct] = useState<any>(null)
   const [saving, setSaving] = useState(false)
+  const [savingOrder, setSavingOrder] = useState(false)
+  const [orderSaved, setOrderSaved] = useState(false)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  )
 
   useEffect(() => {
     fetchProducts()
@@ -98,6 +162,34 @@ export default function ProductsCMS() {
     }
   }
 
+  const handleDragEnd = async (event: any) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const oldIndex = products.findIndex((p) => p.id === active.id)
+    const newIndex = products.findIndex((p) => p.id === over.id)
+    
+    const reordered = arrayMove(products, oldIndex, newIndex)
+    setProducts(reordered)
+
+    setSavingOrder(true)
+    try {
+      const supabase = createClient()
+      const updates = reordered.map((p, i) => 
+        supabase.from('products').update({ sort_order: i + 1 }).eq('id', p.id)
+      )
+      await Promise.all(updates)
+      setOrderSaved(true)
+      setTimeout(() => setOrderSaved(false), 3000)
+    } catch (err) {
+      console.error("Failed to save order", err)
+      alert("Failed to save new order.")
+      fetchProducts()
+    } finally {
+      setSavingOrder(false)
+    }
+  }
+
   return (
     <div className="max-w-6xl mx-auto">
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8">
@@ -105,7 +197,10 @@ export default function ProductsCMS() {
           <h1 className="font-display text-3xl font-semibold text-text-dark">Products Manager</h1>
           <p className="text-text-muted mt-2">Manage the commodity stock and brands displayed on the website.</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-4">
+          {savingOrder && <span className="text-xs text-forest animate-pulse font-medium">Saving order...</span>}
+          {orderSaved && <span className="text-xs text-forest flex items-center gap-1 font-bold"><CheckCircle2 size={12}/> Order saved</span>}
+          <div className="flex gap-2">
           <button 
             onClick={() => setIsCatManagerOpen(true)}
             className="bg-white text-text-muted px-4 py-2.5 rounded-xl text-sm font-medium border border-cream-dark hover:bg-cream transition-all flex items-center gap-2"
@@ -126,6 +221,7 @@ export default function ProductsCMS() {
           <table className="w-full text-left text-sm text-text-muted">
             <thead className="bg-cream/50 font-medium text-text-dark border-b border-black/5">
               <tr>
+                <th className="px-4 py-4 w-10"></th>
                 <th className="px-6 py-4 w-12">Preview</th>
                 <th className="px-6 py-4">Name & Description</th>
                 <th className="px-6 py-4">Category</th>
@@ -136,7 +232,7 @@ export default function ProductsCMS() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="py-20">
+                  <td colSpan={6} className="py-20">
                     <div className="flex flex-col items-center gap-3">
                       <Loader2 className="animate-spin text-forest" />
                       <span>Loading products...</span>
@@ -145,53 +241,27 @@ export default function ProductsCMS() {
                 </tr>
               ) : products.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-20 text-center">
+                  <td colSpan={6} className="py-20 text-center">
                     <div className="text-4xl mb-3">📦</div>
                     <div className="text-text-dark font-medium">No Products Found</div>
                     <div className="text-text-muted text-xs mt-1">Start by adding your first commodity or signature brand.</div>
                   </td>
                 </tr>
-              ) : products.map((row) => (
-                <tr key={row.id} className="border-b border-black/5 hover:bg-cream/30 transition-colors group">
-                  <td className="px-6 py-4">
-                     {row.image_url ? (
-                       <img src={row.image_url} alt="" className="w-12 h-12 rounded-xl object-cover shadow-sm bg-white" />
-                     ) : (
-                       <div className="w-12 h-12 rounded-xl bg-cream flex items-center justify-center text-text-muted italic text-[0.6rem]">No Img</div>
-                     )}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="font-semibold text-text-dark text-[0.95rem]">{row.name}</div>
-                    <div className="text-[0.75rem] text-text-muted line-clamp-1 max-w-xs">{row.description}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="px-3 py-1 bg-cream-warm border border-cream-dark rounded-full text-[0.7rem] text-text-mid font-medium">
-                      {row.category}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                     <span className={`px-2 py-1 rounded-full text-[0.65rem] font-bold uppercase tracking-wider ${row.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
-                      {row.is_active ? 'Active' : 'Draft'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                     <div className="flex justify-end gap-2">
-                        <button 
-                          onClick={() => handleOpenModal(row)}
-                          className="p-2 text-text-muted hover:text-forest hover:bg-forest/5 rounded-lg transition-all"
-                        >
-                          <Edit2 size={16} />
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(row.id)}
-                          className="p-2 text-text-muted hover:text-terracotta hover:bg-terracotta/5 rounded-lg transition-all"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                     </div>
-                  </td>
-                </tr>
-              ))}
+              ) : (
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                  <SortableContext items={products.map(p => p.id)} strategy={verticalListSortingStrategy}>
+                    {products.map((row, index) => (
+                      <SortableRow 
+                        key={row.id} 
+                        row={row} 
+                        index={index}
+                        onEdit={handleOpenModal} 
+                        onDelete={handleDelete} 
+                      />
+                    ))}
+                  </SortableContext>
+                </DndContext>
+              )}
             </tbody>
           </table>
         </div>

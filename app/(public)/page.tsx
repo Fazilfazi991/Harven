@@ -225,7 +225,7 @@ export default async function HomePage() {
                     <h3 className="font-display text-[1.3rem] lg:text-[1.4rem] font-semibold text-text-dark mb-1">{stock.name}</h3>
                     <p className="text-[0.75rem] text-text-muted mb-5 font-light line-clamp-2 min-h-[2.5rem]">{stock.description}</p>
                     
-                    <Link href="/contact" className="block mt-[1.4rem] text-center w-full rounded-full py-2.5 lg:py-3 text-[0.76rem] tracking-[0.03em] font-medium transition-all hover:-translate-y-[1px] bg-forest text-white hover:bg-forest-deep">
+                    <Link href={`/contact?product=${encodeURIComponent(stock.name)}`} className="block mt-[1.4rem] text-center w-full rounded-full py-2.5 lg:py-3 text-[0.76rem] tracking-[0.03em] font-medium transition-all hover:-translate-y-[1px] bg-forest text-white hover:bg-forest-deep">
                       Request Quote
                     </Link>
                  </div>

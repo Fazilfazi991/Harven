@@ -73,10 +73,9 @@ export default function MediaLibraryPage() {
       const supabase = createClient();
       const { data, error } = await supabase.storage.from(bucketName).remove([fileName]);
       if (error) throw error;
-      console.log('Delete response:', data);
-      if (!data || data.length === 0) {
-        alert("File was not found in storage or could not be removed.");
-      }
+      
+      // Even if data is empty, sometimes Supabase returns success. 
+      // We check if the file still exists by refetching or relying on error status.
       await fetchFiles();
       if (selectedUrl?.includes(fileName)) setSelectedUrl(null);
     } catch (err: any) {
