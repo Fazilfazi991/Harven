@@ -108,6 +108,7 @@ export default function ProductsPage() {
 
   const inputClasses = "p-4 border border-cream-dark/60 rounded-xl bg-white focus:outline-forest focus:ring-1 focus:ring-forest transition-all placeholder:text-text-muted/50 text-text-dark"
 
+  return (
     <div className="min-h-screen bg-cream-warm font-body">
       <section className="bg-forest-deep pt-40 pb-28 px-8 lg:px-16 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(196,112,75,0.15)_0%,transparent_60%)] pointer-events-none" />
