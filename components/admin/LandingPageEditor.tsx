@@ -1,21 +1,24 @@
 "use client";
 
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Plus, GripVertical, Trash2, X, Text, Table, AlignLeft, List, Image as ImageIcon } from 'lucide-react'
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
 import { ImagePicker } from './ImagePicker'
 
-// Sorteable Row Item Component
-function SortableBlock({ id, block, onRemove, onChange }: any) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
-  const style = { transform: CSS.Transform.toString(transform), transition }
-
+// Block Item Component (uses native drag handle)
+function DraggableBlock({ id, block, onRemove, onChange, index, onDragStart, onDragOver, onDragEnd, onDrop, isDragging, isDragOver }: any) {
   return (
-    <div ref={setNodeRef} style={style} className="bg-white border text-sm border-black/10 rounded-xl p-4 mb-4 flex gap-4 shadow-sm group">
-      <div {...attributes} {...listeners} className="mt-1 cursor-grab opacity-50 group-hover:opacity-100 flex-shrink-0">
+    <div
+      draggable
+      onDragStart={(e) => onDragStart(e, index)}
+      onDragOver={(e) => onDragOver(e, index)}
+      onDragEnd={onDragEnd}
+      onDrop={(e) => onDrop(e, index)}
+      className={`bg-white border text-sm border-black/10 rounded-xl p-4 mb-4 flex gap-4 shadow-sm group select-none transition-all ${
+        isDragging ? 'opacity-40 bg-cream/50' : isDragOver ? 'bg-forest/5 border-t-2 border-t-forest/30' : ''
+      }`}
+    >
+      <div className="mt-1 cursor-grab active:cursor-grabbing opacity-50 group-hover:opacity-100 flex-shrink-0">
         <GripVertical size={20} />
       </div>
       <div className="flex-1 flex flex-col gap-2">
@@ -60,6 +63,12 @@ export function LandingPageEditor({ initialData = null, onSave }: { initialData?
   const [heroImageUrl, setHeroImageUrl] = useState(initialData?.hero_image_url || '')
   const [mounted, setMounted] = React.useState(false)
 
+  // Native drag state
+  const dragIndexRef = useRef<number | null>(null)
+  const dragOverIndexRef = useRef<number | null>(null)
+  const [draggingIndex, setDraggingIndex] = useState<number | null>(null)
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
+
   React.useEffect(() => {
     setMounted(true)
   }, [])
@@ -86,20 +95,40 @@ export function LandingPageEditor({ initialData = null, onSave }: { initialData?
     onSave(data);
   }
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-  )
+  // ─── NATIVE DRAG AND DROP ──────────────────────────────────────────────
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    dragIndexRef.current = index
+    setDraggingIndex(index)
+    e.dataTransfer.effectAllowed = 'move'
+  }
 
-  const handleDragEnd = (event: any) => {
-    const { active, over } = event
-    if (active.id !== over.id) {
-      setBlocks((items) => {
-        const oldIndex = items.findIndex(i => i.id === active.id)
-        const newIndex = items.findIndex(i => i.id === over.id)
-        return arrayMove(items, oldIndex, newIndex)
-      })
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    dragOverIndexRef.current = index
+    setDragOverIndex(index)
+  }
+
+  const handleDragEnd = () => {
+    setDraggingIndex(null)
+    setDragOverIndex(null)
+    dragIndexRef.current = null
+    dragOverIndexRef.current = null
+  }
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault()
+    const dragIdx = dragIndexRef.current
+    if (dragIdx === null || dragIdx === dropIndex) {
+      handleDragEnd()
+      return
     }
+
+    const newBlocks = [...blocks]
+    const [moved] = newBlocks.splice(dragIdx, 1)
+    newBlocks.splice(dropIndex, 0, moved)
+    setBlocks(newBlocks)
+    handleDragEnd()
   }
 
   const addBlock = (type: string) => {
@@ -173,19 +202,22 @@ export function LandingPageEditor({ initialData = null, onSave }: { initialData?
               </div>
             </div>
 
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={blocks.map(b => b.id)} strategy={verticalListSortingStrategy}>
-                {blocks.map(block => (
-                  <SortableBlock 
-                    key={block.id} 
-                    id={block.id} 
-                    block={block} 
-                    onRemove={(id: string) => setBlocks(blocks.filter(b => b.id !== id))}
-                    onChange={(id: string, newBlock: any) => setBlocks(blocks.map(b => b.id === id ? newBlock : b))}
-                  />
-                ))}
-              </SortableContext>
-            </DndContext>
+            {blocks.map((block, index) => (
+              <DraggableBlock
+                key={block.id}
+                id={block.id}
+                index={index}
+                block={block}
+                onRemove={(id: string) => setBlocks(blocks.filter(b => b.id !== id))}
+                onChange={(id: string, newBlock: any) => setBlocks(blocks.map(b => b.id === id ? newBlock : b))}
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDragEnd={handleDragEnd}
+                onDrop={handleDrop}
+                isDragging={draggingIndex === index}
+                isDragOver={dragOverIndex === index && draggingIndex !== index}
+              />
+            ))}
             
             {blocks.length === 0 && (
                <div className="text-center py-12 text-sm text-text-muted border-2 border-dashed rounded-xl border-cream-dark">No content blocks added yet. Use the buttons above.</div>
