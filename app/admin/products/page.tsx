@@ -1,67 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { X, Plus, Edit2, Trash2, Loader2, Save, Settings, GripVertical, CheckCircle2 } from 'lucide-react'
 import { CategoryManager } from '@/components/admin/CategoryManager'
 import { ImagePicker } from '@/components/admin/ImagePicker'
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
-
-function SortableRow({ row, onEdit, onDelete, draggingIndex, index }: any) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: row.id })
-  const style = { transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 10 : 1 }
-
-  return (
-    <tr 
-      ref={setNodeRef} 
-      style={style} 
-      className={`border-b border-black/5 transition-colors group select-none ${isDragging ? 'bg-cream/80 opacity-50' : 'hover:bg-cream/30'}`}
-    >
-      <td className="px-4 py-4 text-center cursor-grab active:cursor-grabbing" {...attributes} {...listeners}>
-        <GripVertical size={16} className="mx-auto text-text-muted/30 group-hover:text-text-muted/70 transition-colors" />
-      </td>
-      <td className="px-6 py-4">
-         {row.image_url ? (
-           <img src={row.image_url} alt="" className="w-12 h-12 rounded-xl object-cover shadow-sm bg-white" />
-         ) : (
-           <div className="w-12 h-12 rounded-xl bg-cream flex items-center justify-center text-text-muted italic text-[0.6rem]">No Img</div>
-         )}
-      </td>
-      <td className="px-6 py-4">
-        <div className="font-semibold text-text-dark text-[0.95rem]">{row.name}</div>
-        <div className="text-[0.75rem] text-text-muted line-clamp-1 max-w-xs">{row.description}</div>
-      </td>
-      <td className="px-6 py-4">
-        <span className="px-3 py-1 bg-cream-warm border border-cream-dark rounded-full text-[0.7rem] text-text-mid font-medium">
-          {row.category}
-        </span>
-      </td>
-      <td className="px-6 py-4">
-         <span className={`px-2 py-1 rounded-full text-[0.65rem] font-bold uppercase tracking-wider ${row.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
-          {row.is_active ? 'Active' : 'Draft'}
-        </span>
-      </td>
-      <td className="px-6 py-4">
-         <div className="flex justify-end gap-2">
-            <button 
-              onClick={() => onEdit(row)}
-              className="p-2 text-text-muted hover:text-forest hover:bg-forest/5 rounded-lg transition-all"
-            >
-              <Edit2 size={16} />
-            </button>
-            <button 
-              onClick={() => onDelete(row.id)}
-              className="p-2 text-text-muted hover:text-terracotta hover:bg-terracotta/5 rounded-lg transition-all"
-            >
-              <Trash2 size={16} />
-            </button>
-         </div>
-      </td>
-    </tr>
-  )
-}
 
 export default function ProductsCMS() {
   const [products, setProducts] = useState<any[]>([])
@@ -74,10 +17,11 @@ export default function ProductsCMS() {
   const [savingOrder, setSavingOrder] = useState(false)
   const [orderSaved, setOrderSaved] = useState(false)
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-  )
+  // Drag state (native HTML drag API - same pattern as brands page)
+  const dragIndexRef = useRef<number | null>(null)
+  const dragOverIndexRef = useRef<number | null>(null)
+  const [draggingIndex, setDraggingIndex] = useState<number | null>(null)
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
 
   useEffect(() => {
     fetchProducts()
@@ -127,14 +71,12 @@ export default function ProductsCMS() {
     
     try {
       if (currentProduct.id) {
-        // Update
         const { error } = await supabase
           .from('products')
           .update(currentProduct)
           .eq('id', currentProduct.id)
         if (error) throw error
       } else {
-        // Create
         const { error } = await supabase
           .from('products')
           .insert([currentProduct])
@@ -162,28 +104,56 @@ export default function ProductsCMS() {
     }
   }
 
-  const handleDragEnd = async (event: any) => {
-    const { active, over } = event
-    if (!over || active.id === over.id) return
+  // ─── NATIVE DRAG AND DROP ──────────────────────────────────────────────
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    dragIndexRef.current = index
+    setDraggingIndex(index)
+    e.dataTransfer.effectAllowed = 'move'
+  }
 
-    const oldIndex = products.findIndex((p) => p.id === active.id)
-    const newIndex = products.findIndex((p) => p.id === over.id)
-    
-    const reordered = arrayMove(products, oldIndex, newIndex)
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    dragOverIndexRef.current = index
+    setDragOverIndex(index)
+  }
+
+  const handleDragEnd = () => {
+    setDraggingIndex(null)
+    setDragOverIndex(null)
+    dragIndexRef.current = null
+    dragOverIndexRef.current = null
+  }
+
+  const handleDrop = async (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault()
+    const dragIdx = dragIndexRef.current
+    if (dragIdx === null || dragIdx === dropIndex) {
+      handleDragEnd()
+      return
+    }
+
+    const newProducts = [...products]
+    const [moved] = newProducts.splice(dragIdx, 1)
+    newProducts.splice(dropIndex, 0, moved)
+
+    const reordered = newProducts.map((p, i) => ({ ...p, sort_order: i + 1 }))
     setProducts(reordered)
+    handleDragEnd()
 
+    // Persist to Supabase
     setSavingOrder(true)
     try {
       const supabase = createClient()
-      const updates = reordered.map((p, i) => 
-        supabase.from('products').update({ sort_order: i + 1 }).eq('id', p.id)
+      const updates = reordered.map(p =>
+        supabase.from('products').update({ sort_order: p.sort_order }).eq('id', p.id)
       )
       await Promise.all(updates)
       setOrderSaved(true)
-      setTimeout(() => setOrderSaved(false), 3000)
+      setTimeout(() => setOrderSaved(false), 2500)
     } catch (err) {
-      console.error("Failed to save order", err)
-      alert("Failed to save new order.")
+      console.error('Order save error:', err)
+      alert('Failed to save order. Please try again.')
       fetchProducts()
     } finally {
       setSavingOrder(false)
@@ -198,21 +168,33 @@ export default function ProductsCMS() {
           <p className="text-text-muted mt-2">Manage the commodity stock and brands displayed on the website.</p>
         </div>
         <div className="flex items-center gap-4">
-          {savingOrder && <span className="text-xs text-forest animate-pulse font-medium">Saving order...</span>}
-          {orderSaved && <span className="text-xs text-forest flex items-center gap-1 font-bold"><CheckCircle2 size={12}/> Order saved</span>}
+          {savingOrder && (
+            <span className="flex items-center gap-1.5 text-[0.7rem] text-text-muted">
+              <Loader2 size={12} className="animate-spin" /> Saving order...
+            </span>
+          )}
+          {orderSaved && (
+            <span className="flex items-center gap-1.5 text-[0.7rem] text-forest font-semibold">
+              <CheckCircle2 size={13} /> Order saved
+            </span>
+          )}
+          {!savingOrder && !orderSaved && (
+            <span className="text-[0.65rem] text-text-muted/60 italic">Drag rows to reorder</span>
+          )}
           <div className="flex gap-2">
-          <button 
-            onClick={() => setIsCatManagerOpen(true)}
-            className="bg-white text-text-muted px-4 py-2.5 rounded-xl text-sm font-medium border border-cream-dark hover:bg-cream transition-all flex items-center gap-2"
-          >
-            <Settings size={18} /> Categories
-          </button>
-          <button 
-            onClick={() => handleOpenModal()}
-            className="bg-forest text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-forest-deep transition-all shadow-lg shadow-forest/10 flex items-center gap-2"
-          >
-            <Plus size={18} /> Add New Product
-          </button>
+            <button 
+              onClick={() => setIsCatManagerOpen(true)}
+              className="bg-white text-text-muted px-4 py-2.5 rounded-xl text-sm font-medium border border-cream-dark hover:bg-cream transition-all flex items-center gap-2"
+            >
+              <Settings size={18} /> Categories
+            </button>
+            <button 
+              onClick={() => handleOpenModal()}
+              className="bg-forest text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-forest-deep transition-all shadow-lg shadow-forest/10 flex items-center gap-2"
+            >
+              <Plus size={18} /> Add New Product
+            </button>
+          </div>
         </div>
       </div>
 
@@ -221,7 +203,9 @@ export default function ProductsCMS() {
           <table className="w-full text-left text-sm text-text-muted">
             <thead className="bg-cream/50 font-medium text-text-dark border-b border-black/5">
               <tr>
-                <th className="px-4 py-4 w-10"></th>
+                <th className="px-4 py-4 w-8 text-center">
+                  <GripVertical size={14} className="mx-auto text-text-muted/40" />
+                </th>
                 <th className="px-6 py-4 w-12">Preview</th>
                 <th className="px-6 py-4">Name & Description</th>
                 <th className="px-6 py-4">Category</th>
@@ -247,21 +231,65 @@ export default function ProductsCMS() {
                     <div className="text-text-muted text-xs mt-1">Start by adding your first commodity or signature brand.</div>
                   </td>
                 </tr>
-              ) : (
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                  <SortableContext items={products.map(p => p.id)} strategy={verticalListSortingStrategy}>
-                    {products.map((row, index) => (
-                      <SortableRow 
-                        key={row.id} 
-                        row={row} 
-                        index={index}
-                        onEdit={handleOpenModal} 
-                        onDelete={handleDelete} 
-                      />
-                    ))}
-                  </SortableContext>
-                </DndContext>
-              )}
+              ) : products.map((row, index) => (
+                <tr
+                  key={row.id}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, index)}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDragEnd={handleDragEnd}
+                  onDrop={(e) => handleDrop(e, index)}
+                  className={`border-b border-black/5 transition-all group select-none ${
+                    draggingIndex === index
+                      ? 'opacity-40 bg-cream/50'
+                      : dragOverIndex === index && draggingIndex !== index
+                      ? 'bg-forest/5 border-t-2 border-t-forest/30'
+                      : 'hover:bg-cream/30'
+                  }`}
+                >
+                  {/* Drag Handle */}
+                  <td className="px-4 py-4 text-center cursor-grab active:cursor-grabbing">
+                    <GripVertical size={16} className="mx-auto text-text-muted/30 group-hover:text-text-muted/70 transition-colors" />
+                  </td>
+                  <td className="px-6 py-4">
+                     {row.image_url ? (
+                       <img src={row.image_url} alt="" className="w-12 h-12 rounded-xl object-cover shadow-sm bg-white" />
+                     ) : (
+                       <div className="w-12 h-12 rounded-xl bg-cream flex items-center justify-center text-text-muted italic text-[0.6rem]">No Img</div>
+                     )}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="font-semibold text-text-dark text-[0.95rem]">{row.name}</div>
+                    <div className="text-[0.75rem] text-text-muted line-clamp-1 max-w-xs">{row.description}</div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="px-3 py-1 bg-cream-warm border border-cream-dark rounded-full text-[0.7rem] text-text-mid font-medium">
+                      {row.category}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                     <span className={`px-2 py-1 rounded-full text-[0.65rem] font-bold uppercase tracking-wider ${row.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+                      {row.is_active ? 'Active' : 'Draft'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                     <div className="flex justify-end gap-2">
+                        <button 
+                          onClick={() => handleOpenModal(row)}
+                          className="p-2 text-text-muted hover:text-forest hover:bg-forest/5 rounded-lg transition-all"
+                        >
+                          <Edit2 size={16} />
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(row.id)}
+                          className="p-2 text-text-muted hover:text-terracotta hover:bg-terracotta/5 rounded-lg transition-all"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                     </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
