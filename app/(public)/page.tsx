@@ -14,14 +14,16 @@ export default async function HomePage() {
   try {
     const supabase = createPublicClient()
     
-    // Fetch both tables in parallel
-    const [productsRes, brandsRes] = await Promise.all([
-      supabase.from('products').select('*').eq('is_active', true).order('sort_order', { ascending: true }).limit(3),
-      supabase.from('signature_brands').select('*').eq('is_active', true).order('sort_order', { ascending: true }).limit(3)
-    ]);
-    
-    stockItems = productsRes.data;
-    signatureBrands = brandsRes.data;
+    if (supabase) {
+      // Fetch both tables in parallel
+      const [productsRes, brandsRes] = await Promise.all([
+        supabase.from('products').select('*').eq('is_active', true).order('sort_order', { ascending: true }).limit(3),
+        supabase.from('signature_brands').select('*').eq('is_active', true).order('sort_order', { ascending: true }).limit(3)
+      ]);
+      
+      stockItems = productsRes.data;
+      signatureBrands = brandsRes.data;
+    }
   } catch (err) {
     console.error('Home Page Data Fetch Error:', err)
   }

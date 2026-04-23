@@ -16,11 +16,9 @@ export const metadata = {
 
 export default async function BrandsPage() {
   const supabase = createPublicClient()
-  const { data: dbBrands } = await supabase
-    .from('signature_brands')
-    .select('*')
-    .eq('is_active', true)
-    .order('sort_order', { ascending: true })
+  const dbBrands = supabase 
+    ? (await supabase.from('signature_brands').select('*').eq('is_active', true).order('sort_order', { ascending: true })).data 
+    : []
 
   // Inject database products into the static Brand descriptions
   const dynamicBrandsData = BRANDS_DATA.map(brand => {
