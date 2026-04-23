@@ -3,16 +3,19 @@ import { HeroSlider } from '@/components/home/HeroSlider'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { Badge } from '@/components/ui/Badge'
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 60 // Enable ISR to prevent 503 errors on Hostinger
 
 export default async function HomePage() {
   let stockItems = null;
   let signatureBrands = null;
   
   try {
-    const supabase = await createClient()
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
     
     // Fetch both tables in parallel
     const [productsRes, brandsRes] = await Promise.all([
