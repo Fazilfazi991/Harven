@@ -5,7 +5,7 @@ import { BrandHero } from '@/components/brands/BrandHero'
 import { BrandSelector } from '@/components/brands/BrandSelector'
 import { BrandSection } from '@/components/brands/BrandSection'
 
-import { createClient } from '@supabase/supabase-js'
+import { createPublicClient } from '@/lib/supabase/public'
 
 export const revalidate = 60 // Enable ISR
 
@@ -15,10 +15,7 @@ export const metadata = {
 }
 
 export default async function BrandsPage() {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+  const supabase = createPublicClient()
   const { data: dbBrands } = await supabase
     .from('signature_brands')
     .select('*')
