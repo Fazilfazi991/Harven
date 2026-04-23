@@ -77,9 +77,13 @@ export function MediaLibrary({ isOpen, onClose, onSelect }: MediaLibraryProps) {
   const handleDelete = async (fileName: string) => {
     if (!confirm('Are you sure you want to delete this image?')) return;
     try {
-      const supabase = createClient();
-      const { error } = await supabase.storage.from(bucketName).remove([fileName]);
-      if (error) throw error;
+      const res = await fetch('/api/media/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileName, bucketName }),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Delete failed');
       await fetchFiles();
     } catch (err: any) {
       console.error('Delete error:', err);

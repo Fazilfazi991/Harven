@@ -70,12 +70,13 @@ export default function MediaLibraryPage() {
   const handleDelete = async (fileName: string) => {
     if (!confirm('Are you sure you want to delete this image?')) return;
     try {
-      const supabase = createClient();
-      const { data, error } = await supabase.storage.from(bucketName).remove([fileName]);
-      if (error) throw error;
-      
-      // Even if data is empty, sometimes Supabase returns success. 
-      // We check if the file still exists by refetching or relying on error status.
+      const res = await fetch('/api/media/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileName, bucketName }),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Delete failed');
       await fetchFiles();
       if (selectedUrl?.includes(fileName)) setSelectedUrl(null);
     } catch (err: any) {
